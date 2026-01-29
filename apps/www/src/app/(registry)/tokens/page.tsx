@@ -35,7 +35,7 @@ export default function TokensPage() {
         </p>
         <div className="grid grid-cols-1 gap-4">
           <FontBlock className="font-sans" />
-          <FontBlock className="font-[family-name:var(--font-inter)]" />
+          <FontBlock className="font-inter" />
           <FontBlock className="font-mono" />
         </div>
       </section>

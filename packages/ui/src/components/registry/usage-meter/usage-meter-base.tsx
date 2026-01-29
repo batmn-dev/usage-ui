@@ -46,7 +46,8 @@ const UsageMeterBase = React.forwardRef<HTMLDivElement, UsageMeterBaseProps>(
     },
     ref,
   ) => {
-    const percentage = Math.round((value / max) * 100);
+    // Guard against max being 0 or negative to avoid NaN/Infinity
+    const percentage = max > 0 ? Math.round((value / max) * 100) : 0;
     const clampedPercentage = Math.min(100, Math.max(0, percentage));
 
     return (

@@ -1,9 +1,5 @@
 import { cache } from "react";
-import {
-  type BundledLanguage,
-  type Highlighter,
-  createHighlighter,
-} from "shiki";
+import { type Highlighter, createHighlighter } from "shiki";
 
 /** Supported languages for syntax highlighting */
 export type SupportedLanguage =
@@ -47,7 +43,7 @@ export const getHighlighter = cache(async (): Promise<Highlighter> => {
  * @param lang - The language for syntax highlighting
  */
 export const highlightCode = cache(
-  async (code: string, lang: BundledLanguage = "tsx"): Promise<string> => {
+  async (code: string, lang: SupportedLanguage = "tsx"): Promise<string> => {
     const highlighter = await getHighlighter();
 
     return highlighter.codeToHtml(code, {
@@ -68,7 +64,7 @@ export const highlightCode = cache(
  * @param lang - The language for syntax highlighting
  */
 export const highlightCodeToTokens = cache(
-  async (code: string, lang: BundledLanguage = "tsx") => {
+  async (code: string, lang: SupportedLanguage = "tsx") => {
     const highlighter = await getHighlighter();
 
     return highlighter.codeToTokens(code, {

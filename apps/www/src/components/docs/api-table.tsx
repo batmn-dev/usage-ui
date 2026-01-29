@@ -47,7 +47,7 @@ export function ApiTable({ data, className }: ApiTableProps) {
                 {row.type}
               </td>
               <td className="px-4 py-2 text-left align-middle font-mono text-sm">
-                {row.default || "—"}
+                {row.default ?? "—"}
               </td>
               {data.some((r) => r.description) && (
                 <td className="px-4 py-2 text-left align-middle">

@@ -13,7 +13,10 @@ export function ComponentNav({ currentName, className }: ComponentNavProps) {
   const currentIndex = items.findIndex((item) => item.name === currentName);
 
   const prev = currentIndex > 0 ? items[currentIndex - 1] : null;
-  const next = currentIndex < items.length - 1 ? items[currentIndex + 1] : null;
+  const next =
+    currentIndex >= 0 && currentIndex < items.length - 1
+      ? items[currentIndex + 1]
+      : null;
 
   return (
     <div className={cn("flex justify-between pt-12 pb-20", className)}>

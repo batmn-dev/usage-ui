@@ -131,9 +131,11 @@ This matches shadcn/ui's approach: simple components render inline, complex "blo
 
 ## Decision 4: Props/API Documentation
 
-### Selected: Option A (Manual markdown tables in MDX)
+### ~~Initial: Option A (Manual markdown tables in MDX)~~ → Superseded by Decision 6
 
-**Approach:**
+> **Note:** This decision was initially selected but has been **superseded by Decision 6** (auto-generated API documentation). Manual tables remain as a fallback option documented here for reference.
+
+**Original Approach:**
 - Write API Reference tables manually in MDX files
 - Follow shadcn/ui's format: Prop | Type | Default columns
 
@@ -175,13 +177,13 @@ shadcn/ui uses manual markdown tables in MDX files for API documentation. Exampl
 | **Control** | Human-written descriptions are clearer |
 | **Trade-off** | Manual = can drift, but component count is manageable |
 
-### Alternatives Considered for Future
+### Alternatives (Now Selected)
 
-As component count grows (10+), consider:
+As component count grows, we reconsidered:
 - **JSDoc extraction**: Write docs in code, auto-generate tables
-- **TypeScript type extraction**: Use `react-docgen-typescript`
+- **TypeScript type extraction**: Use `react-docgen-typescript` ✅ **Selected in Decision 6**
 
-These add build complexity but ensure docs stay in sync with code.
+These add build complexity but ensure docs stay in sync with code. See **Decision 6** for the current selected approach.
 
 ---
 
@@ -261,6 +263,8 @@ Unlike some theming solutions that require context providers, shadcn/ui's CSS va
 ---
 
 ## Decision 6: Auto-Generated API Documentation
+
+> **Supersedes Decision 4.** After initial selection of manual tables, we decided auto-generation is worth the build complexity for consistency.
 
 ### Selected: Build-Time TypeScript Extraction with react-docgen-typescript
 
@@ -379,7 +383,7 @@ interface UsageMeterProps {
 ### Negative
 - Migration effort from current dynamic routes
 - MDX adds build complexity
-- Manual props tables require discipline to keep updated
+- Auto-generated props add build-time processing dependency
 
 ---
 

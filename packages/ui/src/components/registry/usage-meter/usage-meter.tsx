@@ -54,7 +54,9 @@ const UsageMeter = React.forwardRef<
     },
     ref,
   ) => {
-    const percentage = Math.round((value / max) * 100);
+    // Guard against max <= 0 to prevent division by zero and invalid progress state
+    const safeMax = Math.max(1, max);
+    const percentage = Math.round((value / safeMax) * 100);
     const clampedPercentage = Math.min(100, Math.max(0, percentage));
 
     return (
@@ -86,7 +88,7 @@ const UsageMeter = React.forwardRef<
           ref={ref}
           data-slot="usage-meter"
           value={value}
-          max={max}
+          max={safeMax}
           className={cn(
             "relative w-full overflow-hidden rounded-full bg-[--meter-track]",
             meterSizes[size],

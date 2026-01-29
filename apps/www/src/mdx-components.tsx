@@ -57,7 +57,7 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
     ),
     hr: () => <hr className="my-4 md:my-8" />,
     table: ({ children }: { children?: React.ReactNode }) => (
-      <div className="my-6 w-full overflow-y-auto">
+      <div className="my-6 w-full overflow-x-auto">
         <table className="w-full">{children}</table>
       </div>
     ),

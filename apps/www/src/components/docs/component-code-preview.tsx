@@ -1,3 +1,5 @@
+"use client";
+
 import { cn } from "@/lib/utils";
 import { Tabs } from "radix-ui";
 import { ClientCodeWrapper } from "./client-code-wrapper";
@@ -22,7 +24,7 @@ export function ComponentCodePreview({
         <Tabs.Trigger
           value="preview"
           className={cn(
-            "relative inline-flex h-10 items-center justify-center px-4 py-1 pt-2 pb-3",
+            "group relative inline-flex h-10 items-center justify-center px-4 py-1 pt-2 pb-3",
             "font-medium text-muted-foreground text-sm",
             "data-[state=active]:text-foreground",
             "transition-none focus-visible:outline-none",
@@ -34,7 +36,7 @@ export function ComponentCodePreview({
         <Tabs.Trigger
           value="code"
           className={cn(
-            "relative inline-flex h-10 items-center justify-center px-4 py-1 pt-2 pb-3",
+            "group relative inline-flex h-10 items-center justify-center px-4 py-1 pt-2 pb-3",
             "font-medium text-muted-foreground text-sm",
             "data-[state=active]:text-foreground",
             "transition-none focus-visible:outline-none",
@@ -63,7 +65,7 @@ export function ComponentCodePreview({
 // Animated underline indicator for active tab
 function TabIndicator() {
   return (
-    <div className="absolute bottom-0 flex h-0.5 w-full justify-center opacity-0 transition-opacity data-[state=active]:opacity-100">
+    <div className="absolute bottom-0 flex h-0.5 w-full justify-center opacity-0 transition-opacity group-data-[state=active]:opacity-100">
       <div className="h-0.5 w-4/5 bg-foreground" />
     </div>
   );

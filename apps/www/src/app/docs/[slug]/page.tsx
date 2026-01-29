@@ -1,5 +1,3 @@
-import { notFound } from "next/navigation";
-
 import {
   ApiTable,
   ComponentCodePreview,
@@ -9,12 +7,20 @@ import {
   PreviewErrorBoundary,
 } from "@/components/docs";
 import { getComponentSource } from "@/lib/code";
-import { getRegistryItem, getRegistryItems } from "@/lib/registry";
+import {
+  type Component,
+  getRegistryItem,
+  getRegistryItems,
+} from "@/lib/registry";
+import { notFound } from "next/navigation";
 
 export async function generateStaticParams() {
   const items = getRegistryItems();
   return items.map((item) => ({ slug: item.name }));
 }
+
+// Return 404 for slugs not in generateStaticParams instead of attempting runtime render
+export const dynamicParams = false;
 
 export async function generateMetadata({
   params,
@@ -22,12 +28,16 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const component = getRegistryItem(slug);
 
-  return {
-    title: `${component.title} | Usage UI`,
-    description: component.description,
-  };
+  try {
+    const component = getRegistryItem(slug);
+    return {
+      title: `${component.title} | Usage UI`,
+      description: component.description,
+    };
+  } catch {
+    notFound();
+  }
 }
 
 export default async function ComponentDocPage({
@@ -36,9 +46,11 @@ export default async function ComponentDocPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const component = getRegistryItem(slug);
 
-  if (!component) {
+  let component: Component;
+  try {
+    component = getRegistryItem(slug);
+  } catch {
     notFound();
   }
 

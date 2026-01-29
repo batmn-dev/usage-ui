@@ -310,6 +310,7 @@ mkdir -p apps/www/src/components/docs
 **Create:** `apps/www/src/components/docs/code-renderer.tsx`
 
 ```tsx
+import { cn } from "@/lib/utils"
 import { highlightCode } from "@/lib/shiki"
 
 interface CodeRendererProps {

@@ -19,9 +19,14 @@ export function ClientCodeWrapper({
   const [copied, setCopied] = React.useState(false);
 
   const copyToClipboard = async () => {
-    await navigator.clipboard.writeText(code);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    try {
+      await navigator.clipboard.writeText(code);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // Clipboard write can fail due to denied permissions or insecure context
+      // Silently fail - the UI simply won't show the "copied" state
+    }
   };
 
   return (

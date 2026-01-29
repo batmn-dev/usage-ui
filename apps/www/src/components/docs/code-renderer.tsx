@@ -1,10 +1,9 @@
-import { highlightCode } from "@/lib/shiki";
+import { type SupportedLanguage, highlightCode } from "@/lib/shiki";
 import { cn } from "@/lib/utils";
-import type { BundledLanguage } from "shiki";
 
 interface CodeRendererProps {
   code: string;
-  lang?: BundledLanguage;
+  lang?: SupportedLanguage;
   className?: string;
 }
 

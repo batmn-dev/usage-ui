@@ -185,7 +185,7 @@ export function RegistrySidebar() {
                       <SidebarMenuItem key={item.name}>
                         <SidebarMenuButton
                           asChild
-                          isActive={pathname === item.name}
+                          isActive={pathname === `/docs/${item.name}`}
                         >
                           <Link
                             onClick={() => setOpenMobile(false)}
@@ -223,7 +223,7 @@ export function RegistrySidebar() {
                       <SidebarMenuItem key={item.name}>
                         <SidebarMenuButton
                           asChild
-                          isActive={pathname === item.name}
+                          isActive={pathname === `/docs/${item.name}`}
                         >
                           <Link
                             onClick={() => setOpenMobile(false)}
@@ -260,7 +260,7 @@ export function RegistrySidebar() {
                       <SidebarMenuItem key={item.name}>
                         <SidebarMenuButton
                           asChild
-                          isActive={pathname === item.name}
+                          isActive={pathname === `/docs/${item.name}`}
                         >
                           <Link
                             onClick={() => setOpenMobile(false)}

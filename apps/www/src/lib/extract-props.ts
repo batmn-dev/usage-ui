@@ -135,8 +135,8 @@ function extractPropsFromInterface(
   for (const propMatch of interfaceBody.matchAll(propRegex)) {
     const [, jsDocComment, propName, optional, typeStr] = propMatch;
 
-    // Skip inherited props (from extends)
-    if (propName.startsWith("...") || propName === "className") {
+    // Skip className - it's inherited from React.ComponentProps and not useful in API docs
+    if (propName === "className") {
       continue;
     }
 
@@ -295,15 +295,6 @@ export function formatPropsForApiTable(props: PropInfo[]): Array<{
  * Handles union types, generics, etc.
  */
 function formatType(type: string): string {
-  // Clean up keyof expressions
-  if (type.includes("keyof typeof")) {
-    const match = type.match(/keyof typeof (\w+)/);
-    if (match) {
-      // Try to resolve the actual values
-      return type;
-    }
-  }
-
   // Format union types with quotes for string literals
   if (type.includes("|")) {
     return type
