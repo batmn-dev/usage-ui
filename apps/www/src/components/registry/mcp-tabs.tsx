@@ -1,10 +1,11 @@
 "use client";
 
 import { Check, ClipboardIcon } from "lucide-react";
-import { useEffect, useState } from "react";
+import * as React from "react";
 
 import { AddToCursor } from "@/components/registry/add-to-cursor";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export async function copyToClipboard(value: string) {
@@ -12,8 +13,10 @@ export async function copyToClipboard(value: string) {
 }
 
 export function MCPTabs({ rootUrl }: { rootUrl: string }) {
-  const [tab, setTab] = useState("cursor");
-  const [hasCopied, setHasCopied] = useState(false);
+  // Track mount state to prevent hydration mismatch with Radix Tabs
+  const [mounted, setMounted] = React.useState(false);
+  const [tab, setTab] = React.useState("cursor");
+  const [hasCopied, setHasCopied] = React.useState(false);
 
   const mcp = {
     command: "npx -y shadcn@canary registry:mcp",
@@ -32,13 +35,31 @@ export function MCPTabs({ rootUrl }: { rootUrl: string }) {
     2,
   );
 
-  useEffect(() => {
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  React.useEffect(() => {
     if (hasCopied) {
       setTimeout(() => {
         setHasCopied(false);
       }, 2000);
     }
   }, [hasCopied]);
+
+  // Show skeleton during SSR to prevent hydration mismatch
+  if (!mounted) {
+    return (
+      <div className="flex flex-col gap-2">
+        <div className="flex gap-2">
+          <Skeleton className="h-9 w-20" />
+          <Skeleton className="h-9 w-20" />
+        </div>
+        <Skeleton className="mt-2 h-4 w-64" />
+        <Skeleton className="mt-4 h-32 w-full" />
+      </div>
+    );
+  }
 
   return (
     <Tabs value={tab} onValueChange={setTab}>

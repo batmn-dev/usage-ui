@@ -13,6 +13,8 @@ import { login } from "@/app/demo/[name]/components/login";
 import { logo } from "@/app/demo/[name]/components/logo";
 import { productGrid } from "@/app/demo/[name]/components/product-grid";
 import { promo } from "@/app/demo/[name]/components/promo";
+import { usageMeter } from "@/app/demo/[name]/components/usage-meter";
+import { usageMeterBase } from "@/app/demo/[name]/components/usage-meter-base";
 
 // ui
 import { accordion } from "@/app/demo/[name]/ui/accordion";
@@ -63,6 +65,8 @@ export const demos: { [name: string]: Demo } = {
   "brand-header": brandHeader,
   "brand-sidebar": brandSidebar,
   "product-grid": productGrid,
+  "usage-meter": usageMeter,
+  "usage-meter-base": usageMeterBase,
 
   // ui
   accordion,

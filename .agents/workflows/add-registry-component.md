@@ -128,6 +128,59 @@ pnpm changeset
 # Write description
 ```
 
+### 9. Create Documentation Page (After Component Complete)
+
+**Create:** `apps/www/src/content/docs/[component-name].mdx`
+
+Use the MDX template:
+
+```mdx
+---
+title: Component Name
+description: Brief description of the component.
+---
+
+# Component Name
+
+[Description paragraph]
+
+## Examples
+
+### Basic Usage
+
+<ComponentCodePreview name="component-name">
+  {/* Preview content */}
+</ComponentCodePreview>
+
+## Installation
+
+<InstallationTabs componentName="component-name" />
+
+## API Reference
+
+### ComponentName
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `value` | `number` | Required | The current value |
+| `max` | `number` | `100` | The maximum value |
+| `variant` | `"default" \| "success" \| "warning" \| "danger"` | `"default"` | Visual variant |
+
+## Accessibility
+
+[Include ARIA details if component uses Radix primitives]
+```
+
+**Validation:**
+
+```bash
+# Start dev server
+pnpm dev --filter=@usage-ui/www
+
+# Visit documentation page
+open http://localhost:3000/docs/[component-name]
+```
+
 ---
 
 ## Validation Checklist
@@ -139,6 +192,8 @@ pnpm changeset
 - [ ] Build succeeds: `pnpm build`
 - [ ] Generated JSON exists in `apps/www/public/r/`
 - [ ] Installation works via shadcn CLI
+- [ ] Documentation page exists at `apps/www/src/content/docs/[component-name].mdx`
+- [ ] Documentation page renders without errors at `/docs/[component-name]`
 
 ---
 

@@ -164,6 +164,17 @@ function Sidebar({
   collapsible?: "offcanvas" | "icon" | "none";
 }) {
   const { isMobile, state, openMobile, setOpenMobile } = useSidebar();
+  const [mounted, setMounted] = React.useState(false);
+
+  // Track mount state to prevent hydration mismatch.
+  // Radix components use useId for accessibility attributes, and conditional
+  // rendering based on isMobile creates different component trees between
+  // server (where isMobile is always false) and client (where it may be true).
+  // By always rendering the desktop version first, then switching after mount,
+  // we ensure hydration succeeds with matching component trees.
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
 
   if (collapsible === "none") {
     return (
@@ -180,7 +191,8 @@ function Sidebar({
     );
   }
 
-  if (isMobile) {
+  // After mount, use the actual isMobile value for rendering
+  if (mounted && isMobile) {
     return (
       <Sheet open={openMobile} onOpenChange={setOpenMobile} {...props}>
         <SheetContent
@@ -606,10 +618,9 @@ function SidebarMenuSkeleton({
 }: React.ComponentProps<"div"> & {
   showIcon?: boolean;
 }) {
-  // Random width between 50 to 90%.
-  const width = React.useMemo(() => {
-    return `${Math.floor(Math.random() * 40) + 50}%`;
-  }, []);
+  // Use a fixed width to avoid hydration mismatch.
+  // Math.random() produces different values on server vs client.
+  const width = "70%";
 
   return (
     <div

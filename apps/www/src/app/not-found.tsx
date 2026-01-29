@@ -15,7 +15,7 @@ export default function NotFound() {
       <RegistrySidebar />
       <main className="flex w-full justify-center">
         <div className="flex min-h-screen w-full flex-col items-center justify-center text-center">
-          <h1 className="font-bold text-6xl text-muted-foreground tracking-tight md:text-8xl">
+          <h1 className="font-semibold text-6xl text-muted-foreground tracking-tight md:text-8xl">
             404
           </h1>
           <h2 className="mt-8 font-semibold text-2xl tracking-tight md:text-3xl">

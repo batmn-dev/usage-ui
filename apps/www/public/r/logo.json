@@ -9,7 +9,7 @@
   "files": [
     {
       "path": "src/components/logo.tsx",
-      "content": "export function Logo() {\n  return (\n    <div className=\"flex items-center gap-2\">\n      <svg\n        xmlns=\"http://www.w3.org/2000/svg\"\n        viewBox=\"0 0 24 24\"\n        strokeWidth=\"2\"\n        strokeLinecap=\"round\"\n        strokeLinejoin=\"round\"\n        className=\"size-8\"\n        role=\"graphics-symbol\"\n      >\n        <circle className=\"fill-primary\" cx=\"13.5\" cy=\"6.5\" r=\"2.5\" />\n        <circle className=\"fill-primary\" cx=\"19\" cy=\"13\" r=\"2.5\" />\n        <circle className=\"fill-primary\" cx=\"13.5\" cy=\"19.5\" r=\"2.5\" />\n        <circle className=\"fill-primary\" cx=\"6.5\" cy=\"13\" r=\"2.5\" />\n      </svg>\n\n      <h1 className=\"font-bold\">Brand Name</h1>\n    </div>\n  );\n}\n",
+      "content": "export function Logo() {\n  return (\n    <div className=\"flex items-center gap-2\">\n      <svg\n        xmlns=\"http://www.w3.org/2000/svg\"\n        viewBox=\"0 0 24 24\"\n        strokeWidth=\"2\"\n        strokeLinecap=\"round\"\n        strokeLinejoin=\"round\"\n        className=\"size-8\"\n        role=\"graphics-symbol\"\n      >\n        <circle className=\"fill-primary\" cx=\"13.5\" cy=\"6.5\" r=\"2.5\" />\n        <circle className=\"fill-primary\" cx=\"19\" cy=\"13\" r=\"2.5\" />\n        <circle className=\"fill-primary\" cx=\"13.5\" cy=\"19.5\" r=\"2.5\" />\n        <circle className=\"fill-primary\" cx=\"6.5\" cy=\"13\" r=\"2.5\" />\n      </svg>\n\n      <h1 className=\"font-semibold\">Brand Name</h1>\n    </div>\n  );\n}\n",
       "type": "registry:component"
     },
     {

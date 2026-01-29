@@ -28,10 +28,10 @@ export default function ErrorPage({
       <RegistrySidebar />
       <main className="flex w-full justify-center">
         <div className="flex min-h-screen w-full flex-col items-center justify-center text-center">
-          <h1 className="font-bold text-6xl text-muted-foreground tracking-tight md:text-8xl">
+          <h1 className="font-semibold text-6xl text-muted-foreground tracking-tight md:text-8xl">
             500
           </h1>
-          <h2 className="mt-4 font-bold text-2xl tracking-tight md:text-3xl">
+          <h2 className="mt-4 font-semibold text-2xl tracking-tight md:text-3xl">
             Something went wrong
           </h2>
           <div className="mt-6 flex gap-3">
