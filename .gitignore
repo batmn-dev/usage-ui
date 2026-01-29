@@ -37,3 +37,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Agent skill symlinks (canonical source is .agents/)
+.claude/
+.codex/
+.windsurf/
+.cursor/skills/

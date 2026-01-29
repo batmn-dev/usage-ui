@@ -1,0 +1,93 @@
+---
+description: "Monorepo structure and navigation for Usage UI"
+alwaysApply: true
+---
+
+# Usage UI - Monorepo Structure
+
+> This project uses a **monorepo** structure with pnpm workspaces and Turborepo.
+
+## Directory Structure
+
+```
+usage-ui/
+├── apps/
+│   └── www/                    # Documentation + demo site (Next.js)
+│       ├── src/app/            # Pages
+│       ├── src/components/     # Site-specific components
+│       └── public/r/           # Generated registry JSON
+│
+├── packages/
+│   └── ui/                     # Component registry package
+│       ├── src/components/
+│       │   ├── ui/             # Base shadcn components
+│       │   └── registry/       # YOUR meter components
+│       ├── registry.json       # Component manifest (CRITICAL)
+│       └── components.json     # shadcn CLI config
+│
+├── tooling/
+│   └── typescript/             # Shared TS configs
+│
+├── turbo.json                  # Build orchestration
+├── pnpm-workspace.yaml         # Workspace definition
+└── lefthook.yml                # Git hooks
+```
+
+## Package Names
+
+| Package | Name | Purpose |
+|---------|------|---------|
+| Docs Site | `@usage-ui/www` | Documentation, demos |
+| Components | `@usage-ui/ui` | Distributable components |
+
+## Key Commands
+
+```bash
+# Run across all packages
+pnpm build                          # Build all
+pnpm dev                            # Dev all
+pnpm lint                           # Lint all
+pnpm typecheck                      # Type check all
+
+# Run for specific package
+pnpm build --filter=@usage-ui/ui    # Build UI package only
+pnpm dev --filter=@usage-ui/www     # Dev docs site only
+
+# Add dependencies
+pnpm add <pkg> --filter=@usage-ui/ui    # Add to UI package
+pnpm add <pkg> --filter=@usage-ui/www   # Add to docs site
+pnpm add -D <pkg> -w                    # Add to root devDeps
+```
+
+## Where to Add Components
+
+**New meter components go in:**
+```
+packages/ui/src/components/registry/[component-name]/
+```
+
+**NOT in:**
+- `apps/www/src/components/` (site-specific only)
+- `packages/ui/src/components/ui/` (base shadcn, don't modify)
+
+## Critical Files
+
+| File | Location | Purpose |
+|------|----------|---------|
+| `registry.json` | `packages/ui/` | Component manifest - update for every new component |
+| `turbo.json` | Root | Build pipeline - rarely modify |
+| `pnpm-workspace.yaml` | Root | Package definitions - rarely modify |
+
+## Import Patterns
+
+```tsx
+// In packages/ui (components)
+import { cn } from "@/lib/utils";
+
+// In apps/www (when importing from UI package)
+import { UsageMeter } from "@usage-ui/ui/components/registry/usage-meter";
+```
+
+## Migration Status
+
+Check [MONOREPO-MIGRATION.md](../MONOREPO-MIGRATION.md) for migration checklist.

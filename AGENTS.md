@@ -1,51 +1,55 @@
 # AGENTS.md
 
+Quick reference for AI coding assistants working on Usage UI.
+
+## Monorepo Structure
+
+```
+usage-ui/
+├── apps/www/               # Docs site (@usage-ui/www)
+├── packages/ui/            # Components (@usage-ui/ui)
+│   ├── src/components/
+│   │   ├── ui/             # Base shadcn (don't modify)
+│   │   └── registry/       # YOUR components
+│   └── registry.json       # Component manifest
+├── tooling/                # Shared configs
+├── turbo.json              # Build orchestration
+└── pnpm-workspace.yaml     # Workspace definition
+```
+
 ## Commands
 
 ```bash
-# Development
-pnpm dev                    # Build registry + start dev server (turbopack)
-pnpm build                  # Build registry + production build
-pnpm lint                   # Biome check
-pnpm lint:fix               # Biome check --write
-pnpm registry:build         # npx shadcn@latest build
+# All packages
+pnpm dev                            # Start dev servers
+pnpm build                          # Build all (Turbo cached)
+pnpm lint                           # Biome check
+pnpm typecheck                      # Type check
 
-# File-scoped validation
-pnpm biome check src/components/ui/component.tsx
-pnpm tsc --noEmit
+# Package-specific
+pnpm dev --filter=@usage-ui/www     # Dev docs only
+pnpm build --filter=@usage-ui/ui    # Build UI only
+
+# Dependencies
+pnpm add <pkg> --filter=@usage-ui/ui    # Add to UI
+pnpm add -D <pkg> -w                    # Add to root
+
+# Versioning
+pnpm changeset                      # Create changeset
 ```
 
 ## Tech Stack
 
-- Next.js 16.0.10, React 19.2.3, TypeScript 5.4.5
-- Tailwind CSS 4.1.18 (v4 syntax, `@import "tailwindcss"`)
-- Radix UI 1.4.3 (unified `radix-ui` package)
-- Recharts 2.15.4, class-variance-authority 0.7.1
-- Biome 1.9.4 (linting + formatting)
-- pnpm 9.15.2, Node.js ≥22
-
-## Project Structure
-
-```
-src/
-├── app/                    # Next.js App Router pages
-│   ├── (registry)/         # Registry routes (/, /registry/[name])
-│   ├── demo/[name]/        # Component demo pages
-│   └── globals.css         # Global styles + CSS variables
-├── components/
-│   ├── ui/                 # shadcn base components (46 components)
-│   └── registry/           # Site-specific registry components
-├── lib/
-│   └── utils.ts            # cn() utility + helpers
-└── hooks/                  # Custom hooks
-registry.json               # Component manifest (CRITICAL)
-components.json             # shadcn CLI config
-public/r/                   # Generated registry JSON (DO NOT EDIT)
-```
+- **Monorepo**: pnpm 9.15.2 + Turborepo + Changesets
+- **Framework**: Next.js 16, React 19, TypeScript 5.4.5
+- **Styling**: Tailwind CSS 4.1.18 (OKLCH colors)
+- **Primitives**: radix-ui 1.4.3 (unified package)
+- **Data Viz**: Tremor + Recharts
+- **Linting**: Biome 1.9.4
 
 ## Code Style
 
-### Component Pattern (React 19)
+### Component Pattern
 
 ```tsx
 "use client";
@@ -54,34 +58,35 @@ import { Progress as ProgressPrimitive } from "radix-ui";
 import type * as React from "react";
 import { cn } from "@/lib/utils";
 
-function ComponentName({
-  className,
-  ...props
-}: React.ComponentProps<typeof ProgressPrimitive.Root>) {
+interface UsageMeterProps extends React.ComponentProps<typeof ProgressPrimitive.Root> {
+  variant?: "default" | "success" | "warning" | "danger";
+}
+
+function UsageMeter({ className, variant = "default", ...props }: UsageMeterProps) {
   return (
     <ProgressPrimitive.Root
-      data-slot="component-name"
-      className={cn("base-classes", className)}
+      data-slot="usage-meter"
+      className={cn("relative h-3 w-full overflow-hidden rounded-full", className)}
       {...props}
     />
   );
 }
 
-export { ComponentName };
+export { UsageMeter };
+export type { UsageMeterProps };
 ```
 
 ### Import Patterns
 
 ```tsx
 // ✅ Correct - unified radix-ui package
-import { Progress as ProgressPrimitive } from "radix-ui";
+import { Progress } from "radix-ui";
 
-// ❌ Wrong - individual packages not installed
-import * as ProgressPrimitive from "@radix-ui/react-progress";
+// ❌ Wrong - individual packages
+import * as Progress from "@radix-ui/react-progress";
 
 // ✅ Correct - path aliases
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
 
 // ❌ Wrong - relative imports break in user projects
 import { cn } from "../../lib/utils";
@@ -89,34 +94,70 @@ import { cn } from "../../lib/utils";
 
 ### CSS Variables
 
-Use shadcn semantic variables with OKLCH format:
-
 ```tsx
-// ✅ Correct
+// ✅ Correct - semantic variables
 className="bg-primary text-primary-foreground"
-className="bg-muted text-muted-foreground"
+className="bg-[--meter-success]"
 
 // ❌ Wrong - hardcoded colors
 className="bg-blue-500 text-white"
 ```
 
+## Where to Add Code
+
+| Type | Location |
+|------|----------|
+| New meter components | `packages/ui/src/components/registry/` |
+| Component manifest | `packages/ui/registry.json` |
+| CSS variables | `packages/ui/src/styles/globals.css` |
+| Docs pages | `apps/www/src/app/docs/` |
+| Site components | `apps/www/src/components/` |
+
 ## Git Workflow
 
 - Conventional commits: `feat:`, `fix:`, `docs:`, `refactor:`, `chore:`
 - Run `pnpm lint && pnpm build` before committing
+- Create changeset for notable changes: `pnpm changeset`
 
 ## Boundaries
 
-**Always:** Use `"use client"` for stateful components | `@/` path aliases | `cn()` for classes | `data-slot` attributes | Update `registry.json` when adding components | Run `pnpm build` to verify
+**Always:**
+- Use `"use client"` for stateful components
+- Use `@/` path aliases
+- Use `cn()` for class merging
+- Add `data-slot` attributes
+- Update `packages/ui/registry.json` when adding components
+- Create both Radix and Base versions for core meters
+- Export types alongside components
+- Run `pnpm build` to verify
 
-**Ask First:** Adding npm dependencies | Modifying `registry.json` structure | Changing component APIs | Modifying CSS variables
+**Ask First:**
+- Adding npm dependencies
+- Modifying registry.json structure
+- Changing component APIs
+- Modifying CSS variables in globals.css
 
-**Never:** Use relative imports | Import from `@radix-ui/react-*` (use `radix-ui`) | Edit `public/r/` | Use `npm` (use `pnpm`) | Hardcode colors | Skip TypeScript types
+**Never:**
+- Use relative imports
+- Import from `@radix-ui/react-*` (use `radix-ui`)
+- Edit `apps/www/public/r/` (generated)
+- Use `npm` (use `pnpm`)
+- Hardcode colors
+- Skip TypeScript types
+- Modify `packages/ui/src/components/ui/` (base shadcn)
 
 ## Gotchas
 
-- **Radix Import**: Uses unified `radix-ui` package, NOT `@radix-ui/react-*`
-- **Demo Items**: `registry.json` has demo template items (pointing to `registry-starter.vercel.app`) that need replacement
-- **Biome Ignores**: `public/r/` and `components/ui/` excluded from linting
-- **shadcn Style**: Uses `new-york` style variant
-- **Build Output**: `pnpm build` generates `public/r/*.json` from `registry.json`
+1. **Turbo Filters**: Always use `--filter=@usage-ui/ui` for package-specific commands
+2. **Radix Import**: Uses unified `radix-ui` package, NOT `@radix-ui/react-*`
+3. **Registry Location**: `packages/ui/registry.json`, not root
+4. **Generated Files**: `apps/www/public/r/` is auto-generated, never edit
+5. **Biome Ignores**: `public/r/` and `components/ui/` excluded from linting
+6. **shadcn Style**: Uses `new-york` style variant
+7. **Dual Versions**: Core meters need both Radix (accessible) and Base (lightweight) versions
+
+## Key Documents
+
+- [ARCHITECTURE.md](./ARCHITECTURE.md) - Full roadmap and decision framework
+- [MONOREPO-MIGRATION.md](./MONOREPO-MIGRATION.md) - Migration checklist
+- [CLAUDE.md](./CLAUDE.md) - Extended AI context

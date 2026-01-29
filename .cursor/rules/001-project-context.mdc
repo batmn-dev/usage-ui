@@ -1,47 +1,59 @@
 ---
-description: "Essential project context for Usage UI - a shadcn/ui component registry for usage meters and quota visualization"
+description: "Essential project context for Usage UI - a shadcn/ui component registry monorepo for usage meters and quota visualization"
 alwaysApply: true
 ---
 
 # Usage UI - Project Context
 
-> A shadcn/ui component registry for building usage meters, quota indicators, and resource consumption visualizations.
+> A shadcn/ui component registry for building usage meters, quota indicators, and resource consumption visualizations. **Structured as a monorepo.**
+
+## Monorepo Structure
+
+```
+usage-ui/
+├── apps/
+│   └── www/                    # Documentation + demo site (@usage-ui/www)
+│       ├── src/app/            # Next.js pages
+│       ├── src/components/     # Site-specific components
+│       └── public/r/           # Generated registry JSON (DO NOT EDIT)
+│
+├── packages/
+│   └── ui/                     # Component registry (@usage-ui/ui)
+│       ├── src/components/
+│       │   ├── ui/             # Base shadcn components (DO NOT MODIFY)
+│       │   └── registry/       # YOUR meter components
+│       ├── src/lib/            # Utilities (cn, etc.)
+│       ├── src/styles/         # CSS variables
+│       ├── registry.json       # Component manifest (CRITICAL)
+│       └── components.json     # shadcn CLI config
+│
+├── tooling/typescript/         # Shared TypeScript configs
+├── turbo.json                  # Build orchestration
+├── pnpm-workspace.yaml         # Workspace definition
+└── lefthook.yml                # Git hooks
+```
 
 ## Tech Stack
 
-- **Framework**: Next.js 15+ (App Router, React Server Components)
+- **Monorepo**: pnpm workspaces + Turborepo + Changesets
+- **Framework**: Next.js 16+ (App Router, React Server Components)
 - **Language**: TypeScript (strict mode)
 - **UI**: shadcn/ui (new-york style), Radix UI primitives
 - **Styling**: Tailwind CSS v4, CSS variables (OKLCH color space)
+- **Data Viz**: Tremor + Recharts
 - **Package Manager**: pnpm (NOT npm or yarn)
 - **Linting**: Biome (NOT ESLint/Prettier)
 - **Icons**: Lucide React
 
-## Project Structure
-
-```
-src/
-├── app/                    # Next.js App Router
-│   ├── (registry)/         # Registry browser pages
-│   ├── demo/[name]/        # Component demo pages
-│   └── globals.css         # Theme CSS variables
-├── components/
-│   ├── ui/                 # shadcn/ui primitives (DO NOT MODIFY)
-│   └── registry/           # Registry-specific components
-├── layouts/                # Layout components
-├── lib/
-│   └── utils.ts            # cn() utility and helpers
-└── hooks/                  # Custom React hooks
-```
-
 ## Critical Files (Modify with Care)
 
-| File | Risk | Notes |
-|------|------|-------|
-| `registry.json` | 🔴 CRITICAL | Breaking changes break ALL installations |
-| `components.json` | 🔴 CRITICAL | shadcn CLI config - invalid = CLI fails |
-| `globals.css` | 🟡 HIGH | CSS variables affect all components |
-| `src/components/ui/*` | 🟡 HIGH | Base shadcn components - prefer not editing |
+| File | Location | Risk | Notes |
+|------|----------|------|-------|
+| `registry.json` | `packages/ui/` | 🔴 CRITICAL | Breaking changes break ALL installations |
+| `components.json` | `packages/ui/` | 🔴 CRITICAL | shadcn CLI config - invalid = CLI fails |
+| `turbo.json` | Root | 🔴 CRITICAL | Build pipeline |
+| `globals.css` | `packages/ui/src/styles/` | 🟡 HIGH | CSS variables affect all components |
+| `ui/*` | `packages/ui/src/components/` | 🟡 HIGH | Base shadcn - prefer not editing |
 
 ## Import Aliases
 
@@ -59,10 +71,18 @@ import { cn } from "../../lib/utils";
 ## Key Commands
 
 ```bash
-pnpm dev          # Start development server
-pnpm build        # Build for production (generates registry JSON)
-pnpm lint         # Run Biome linter
-pnpm check        # Biome check (lint + format)
+# All packages
+pnpm dev                            # Start dev servers
+pnpm build                          # Build all (cached)
+pnpm lint                           # Lint all
+pnpm typecheck                      # Type check all
+
+# Package-specific
+pnpm dev --filter=@usage-ui/www     # Dev docs only
+pnpm build --filter=@usage-ui/ui    # Build UI only
+
+# Add dependencies
+pnpm add <pkg> --filter=@usage-ui/ui
 ```
 
 ## Registry Distribution
@@ -76,6 +96,14 @@ npx shadcn add https://usage-ui.vercel.app/r/usage-meter.json
 
 Components are **copied** into user projects at `components/ui/` - they own the code.
 
+## Where to Add Components
+
+| Type | Location |
+|------|----------|
+| Your meter components | `packages/ui/src/components/registry/` |
+| Base shadcn (don't modify) | `packages/ui/src/components/ui/` |
+| Site-specific (docs) | `apps/www/src/components/` |
+
 ## Do NOT
 
 - ❌ Use `npm` commands (use `pnpm`)
@@ -84,3 +112,6 @@ Components are **copied** into user projects at `components/ui/` - they own the 
 - ❌ Create components without TypeScript types
 - ❌ Use default exports for components
 - ❌ Skip the `"use client"` directive for client components
+- ❌ Use relative imports
+- ❌ Edit `apps/www/public/r/` (generated files)
+- ❌ Modify `packages/ui/src/components/ui/` (base shadcn)
