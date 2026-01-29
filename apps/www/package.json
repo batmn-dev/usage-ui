@@ -4,8 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "pnpm dlx shadcn@latest build ./src/registry.json && next build",
-    "build:registry": "pnpm dlx shadcn@latest build ./src/registry.json",
+    "build": "pnpm exec shadcn build ./src/registry.json && next build",
+    "build:registry": "pnpm exec shadcn build ./src/registry.json",
     "start": "next start",
     "lint": "biome check src/",
     "typecheck": "tsc --noEmit"
@@ -38,6 +38,7 @@
     "zod": "^3.25.76"
   },
   "devDependencies": {
+    "shadcn": "3.7.0",
     "@tailwindcss/postcss": "^4.1.18",
     "@types/node": "^22.19.3",
     "@types/react": "^19.2.7",
