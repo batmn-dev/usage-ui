@@ -16,10 +16,11 @@
 8. [Phase 5: Shared Tooling](#phase-5-shared-tooling)
 9. [Phase 6: CI/CD](#phase-6-cicd)
 10. [Phase 7: Install and Verify](#phase-7-install-and-verify)
-11. [Phase 8: Cleanup](#phase-8-cleanup)
-12. [Phase 9: Post-Migration Validation](#phase-9-post-migration-validation)
-13. [Troubleshooting](#troubleshooting)
-14. [Common Pitfalls](#common-pitfalls)
+11. [Phase 7.5: Dependency Reconciliation](#phase-75-dependency-reconciliation)
+12. [Phase 8: Cleanup](#phase-8-cleanup)
+13. [Phase 9: Post-Migration Validation](#phase-9-post-migration-validation)
+14. [Troubleshooting](#troubleshooting)
+15. [Common Pitfalls](#common-pitfalls)
 
 ---
 
@@ -247,6 +248,8 @@ mv postcss.config.mjs apps/www/
 
 ### 3.2 Create apps/www/package.json
 
+> ⚠️ **Important**: If `apps/www/src/components/ui/` contains shadcn components, you need their dependencies here too. The list below includes all common shadcn/ui dependencies. Remove any you don't use.
+
 ```json
 {
   "name": "@usage-ui/www",
@@ -265,6 +268,8 @@ mv postcss.config.mjs apps/www/
     "@tanstack/react-table": "^8.21.3",
     "@vercel/analytics": "^1.6.1",
     "@vercel/speed-insights": "^1.3.1",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
     "date-fns": "^4.1.0",
     "embla-carousel-react": "^8.6.0",
@@ -272,12 +277,15 @@ mv postcss.config.mjs apps/www/
     "lucide-react": "^0.506.0",
     "next": "^16.0.10",
     "next-themes": "^0.4.6",
+    "radix-ui": "^1.4.3",
     "react": "^19.2.3",
     "react-day-picker": "^9.12.0",
     "react-dom": "^19.2.3",
     "react-hook-form": "^7.68.0",
     "react-resizable-panels": "^3.0.6",
+    "recharts": "^2.15.4",
     "sonner": "^2.0.7",
+    "tailwind-merge": "^3.4.0",
     "vaul": "^1.1.2",
     "zod": "^3.25.76"
   },
@@ -347,13 +355,46 @@ ls -la apps/www/
 # Should show: src/, public/, next.config.ts, postcss.config.mjs, package.json, tsconfig.json, components.json
 ```
 
+### 3.6 Ensure Site Registry File Exists
+
+> **Registry File Architecture**: This project uses **two registry files** with different purposes:
+>
+> | File | Purpose | Used By |
+> |------|---------|---------|
+> | `packages/ui/registry.json` | Component manifest for shadcn CLI | External users installing components |
+> | `apps/www/src/registry.json` | Documentation site data | `apps/www/src/lib/registry.ts` for UI display |
+
+If your docs site imports from `@/registry.json` (check `apps/www/src/lib/registry.ts`), ensure the file exists:
+
+```bash
+# Check if registry.ts imports from @/registry.json
+if grep -q "@/registry.json" apps/www/src/lib/registry.ts 2>/dev/null; then
+  # Verify the file exists
+  if [ ! -f apps/www/src/registry.json ]; then
+    echo "⚠️  apps/www/src/registry.json is missing but required by registry.ts"
+    echo "   Copy from root or create: cp registry.json apps/www/src/registry.json"
+  else
+    echo "✅ apps/www/src/registry.json exists"
+  fi
+fi
+```
+
+If missing, copy from root before Phase 8 deletes it:
+
+```bash
+cp registry.json apps/www/src/registry.json
+```
+
 **Checkpoint:** `[ ]` apps/www configured with all files
+**Checkpoint:** `[ ]` Site registry file exists (if needed by registry.ts)
 
 ---
 
 ## Phase 4: Set Up packages/ui
 
 ### 4.1 Create packages/ui/package.json
+
+> ⚠️ **Important**: shadcn/ui components have many peer dependencies. The list below includes all common ones. Adjust based on which components exist in `packages/ui/src/components/ui/`.
 
 ```json
 {
@@ -377,13 +418,24 @@ ls -la apps/www/
   "dependencies": {
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "cmdk": "^1.1.1",
+    "embla-carousel-react": "^8.6.0",
+    "input-otp": "^1.4.2",
+    "lucide-react": "^0.506.0",
+    "next-themes": "^0.4.6",
     "radix-ui": "^1.4.3",
+    "react-day-picker": "^9.12.0",
+    "react-hook-form": "^7.68.0",
+    "react-resizable-panels": "^3.0.6",
     "recharts": "^2.15.4",
-    "tailwind-merge": "^3.4.0"
+    "sonner": "^2.0.7",
+    "tailwind-merge": "^3.4.0",
+    "vaul": "^1.1.2"
   },
   "devDependencies": {
     "@types/react": "^19.2.7",
     "react": "^19.2.3",
+    "react-dom": "^19.2.3",
     "typescript": "^5.4.5"
   },
   "peerDependencies": {
@@ -393,6 +445,29 @@ ls -la apps/www/
   }
 }
 ```
+
+<details>
+<summary>📦 Dependency Reference: Which packages are needed for which components</summary>
+
+| Package | Required By |
+|---------|-------------|
+| `class-variance-authority` | All components using `cva()` variants |
+| `clsx` | All components (via `cn()` utility) |
+| `tailwind-merge` | All components (via `cn()` utility) |
+| `radix-ui` | Most primitives (Dialog, Dropdown, Select, etc.) |
+| `lucide-react` | Components with icons |
+| `cmdk` | Command component |
+| `embla-carousel-react` | Carousel component |
+| `input-otp` | InputOTP component |
+| `next-themes` | ThemeProvider, theme toggle |
+| `react-day-picker` | Calendar, DatePicker components |
+| `react-hook-form` | Form component |
+| `react-resizable-panels` | Resizable component |
+| `recharts` | Chart components |
+| `sonner` | Sonner toast component |
+| `vaul` | Drawer component |
+
+</details>
 
 ### 4.2 Create packages/ui/tsconfig.json
 
@@ -508,9 +583,23 @@ fi
 }
 ```
 
-### 4.7 Create packages/ui/src/components/index.ts
+### 4.7 Create Component Barrel Files
 
-This barrel file enables the `@usage-ui/ui/components` import path:
+> ⚠️ **Important**: TypeScript requires files to have at least one export to be valid modules. Since `registry/` is empty initially, we need a placeholder export.
+
+**First**, create the registry index with a valid empty export:
+
+```bash
+cat > packages/ui/src/components/registry/index.ts << 'EOF'
+// Registry components will be exported here as they are created
+// Example: export * from "./usage-meter";
+
+// Placeholder export to ensure this is a valid module
+export {};
+EOF
+```
+
+**Then**, create the main barrel file `packages/ui/src/components/index.ts`:
 
 ```ts
 // Re-export component directories
@@ -719,6 +808,96 @@ pnpm run build --filter=@usage-ui/www
 ```
 
 **Checkpoint:** `[ ]` All builds and commands succeed
+
+---
+
+## Phase 7.5: Dependency Reconciliation
+
+> Even well-planned migrations often reveal missing dependencies during validation. This phase systematically identifies and fixes them.
+
+### 7.5.1 Identify Missing Dependencies
+
+If `pnpm install` succeeds but `pnpm build` or `pnpm typecheck` fails with import errors:
+
+```bash
+# Capture TypeScript errors for missing modules
+pnpm typecheck 2>&1 | grep "Cannot find module" | sort -u
+
+# Common patterns:
+# - "Cannot find module 'class-variance-authority'" → missing in package.json
+# - "Cannot find module '@/registry.json'" → missing file
+# - "File is not a module" → empty index.ts without exports
+```
+
+### 7.5.2 Fix apps/www Dependencies
+
+If UI components in `apps/www/src/components/ui/` fail to build, add their dependencies:
+
+```bash
+# Core shadcn dependencies (almost always needed)
+pnpm add class-variance-authority clsx radix-ui tailwind-merge --filter=@usage-ui/www
+
+# Data visualization
+pnpm add recharts --filter=@usage-ui/www
+
+# Component-specific (add as needed based on errors)
+pnpm add lucide-react --filter=@usage-ui/www  # Icons
+```
+
+### 7.5.3 Fix packages/ui Dependencies
+
+If components in `packages/ui/src/components/ui/` fail to build:
+
+```bash
+# Add missing shadcn component dependencies
+pnpm add lucide-react cmdk embla-carousel-react input-otp next-themes \
+  react-day-picker react-hook-form react-resizable-panels sonner vaul \
+  --filter=@usage-ui/ui
+```
+
+### 7.5.4 Fix Missing Registry File
+
+If `apps/www/src/lib/registry.ts` imports `@/registry.json` but the file doesn't exist:
+
+```bash
+# Check if the import exists
+grep -l "@/registry.json" apps/www/src/lib/*.ts
+
+# If found, copy from packages/ui or root
+cp packages/ui/registry.json apps/www/src/registry.json
+# OR if you have site-specific registry data:
+cp registry.json apps/www/src/registry.json
+```
+
+### 7.5.5 Fix Empty Module Exports
+
+If TypeScript errors with "File is not a module" for `packages/ui/src/components/registry/index.ts`:
+
+```bash
+# Create valid empty export
+cat > packages/ui/src/components/registry/index.ts << 'EOF'
+// Registry components will be exported here as they are created
+// Example: export * from "./usage-meter";
+
+// Placeholder export to ensure this is a valid module
+export {};
+EOF
+```
+
+### 7.5.6 Re-validate
+
+After fixes, re-run validation:
+
+```bash
+pnpm install        # Refresh dependencies
+pnpm typecheck      # Should pass
+pnpm build          # Should succeed
+pnpm dev            # Should start without errors
+```
+
+**Checkpoint:** `[ ]` All TypeScript errors resolved
+**Checkpoint:** `[ ]` Build succeeds without errors
+**Checkpoint:** `[ ]` Dev server starts cleanly
 
 ---
 
@@ -1072,6 +1251,10 @@ packages/ui/components.json:
 | Missing tooling package.json | Add minimal package.json to `tooling/typescript/` |
 | Duplicate Tailwind imports | Only ONE package should `@import "tailwindcss"` |
 | Export/alias mismatch | Ensure package exports match component.json aliases |
+| Missing shadcn dependencies | Include `cva`, `clsx`, `radix-ui`, `tailwind-merge` in packages with UI components |
+| Two registry files needed | `packages/ui/registry.json` (CLI) + `apps/www/src/registry.json` (site) |
+| Empty registry/index.ts | Add `export {};` placeholder until components exist |
+| Incomplete dependency analysis | Analyze imports in moved files before creating package.json |
 
 ---
 

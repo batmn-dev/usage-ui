@@ -1,0 +1,27 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "dashboard",
+  "title": "Dashboard",
+  "description": "A dashboard application with your brand themed components",
+  "registryDependencies": [
+    "https://registry-starter.vercel.app/r/sonner.json",
+    "https://registry-starter.vercel.app/r/brand-header.json",
+    "https://registry-starter.vercel.app/r/brand-sidebar.json",
+    "https://registry-starter.vercel.app/r/theme.json"
+  ],
+  "files": [
+    {
+      "path": "src/layouts/shell-layout.tsx",
+      "content": "import { Geist, Geist_Mono, Montserrat } from \"next/font/google\";\nimport React, { type ReactNode } from \"react\";\n\nimport { BrandHeader } from \"@/components/brand-header\";\nimport { BrandSidebar } from \"@/components/brand-sidebar\";\nimport { SidebarProvider } from \"@/components/ui/sidebar\";\nimport { Toaster } from \"@/components/ui/sonner\";\nimport { cn } from \"@/lib/utils\";\n\nimport \"@/app/globals.css\";\n\nconst GeistSans = Geist({\n  subsets: [\"latin\"],\n  variable: \"--font-sans\",\n});\n\nconst GeistMono = Geist_Mono({\n  subsets: [\"latin\"],\n  variable: \"--font-mono\",\n});\n\nconst MontserratSerif = Montserrat({\n  subsets: [\"latin\"],\n  variable: \"--font-serif\",\n});\n\nexport default function ShellLayout({\n  children,\n}: Readonly<{\n  children: ReactNode;\n}>) {\n  return (\n    <html\n      lang=\"en\"\n      className={cn(\n        GeistSans.variable,\n        GeistMono.variable,\n        MontserratSerif.variable,\n        \"bg-background text-foreground\",\n      )}\n    >\n      <body>\n        <SidebarProvider>\n          <BrandHeader />\n          <BrandSidebar />\n          <main className=\"mt-16 flex w-full justify-center\">\n            <div className=\"container\">{children}</div>\n          </main>\n          <Toaster />\n        </SidebarProvider>\n      </body>\n    </html>\n  );\n}\n",
+      "type": "registry:file",
+      "target": "app/layout.tsx"
+    },
+    {
+      "path": "src/app/demo/[name]/blocks/dashboard-page.tsx",
+      "content": "export default function DashboardPage() {\n  return (\n    <div className=\"flex min-h-[90vh] flex-col items-center justify-center gap-4 rounded-md bg-background\">\n      <div className=\"min-w-32 text-muted-foreground\">\n        To get started, click the open in v0 button!\n      </div>\n    </div>\n  );\n}\n",
+      "type": "registry:page",
+      "target": "app/page.tsx"
+    }
+  ],
+  "type": "registry:block"
+}

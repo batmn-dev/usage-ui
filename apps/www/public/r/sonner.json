@@ -1,0 +1,25 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "sonner",
+  "title": "Sonner",
+  "description": "An opinionated toast component for React.",
+  "registryDependencies": [
+    "sonner",
+    "https://registry-starter.vercel.app/r/theme.json"
+  ],
+  "files": [
+    {
+      "path": "src/layouts/minimal-layout.tsx",
+      "content": "import { Geist, Geist_Mono, Montserrat } from \"next/font/google\";\nimport React, { type ReactNode } from \"react\";\n\nimport { cn } from \"@/lib/utils\";\n\nimport \"@/app/globals.css\";\n\nconst GeistSans = Geist({\n  subsets: [\"latin\"],\n  variable: \"--font-sans\",\n});\n\nconst GeistMono = Geist_Mono({\n  subsets: [\"latin\"],\n  variable: \"--font-mono\",\n});\n\nconst MontserratSerif = Montserrat({\n  subsets: [\"latin\"],\n  variable: \"--font-serif\",\n});\n\nexport default function RootLayout({\n  children,\n}: Readonly<{\n  children: ReactNode;\n}>) {\n  return (\n    <html\n      lang=\"en\"\n      className={cn(\n        GeistSans.variable,\n        GeistMono.variable,\n        MontserratSerif.variable,\n        \"bg-background text-foreground\",\n      )}\n    >\n      <body>\n        <main className=\"mt-16 flex w-full justify-center\">\n          <div className=\"container\">{children}</div>\n        </main>\n      </body>\n    </html>\n  );\n}\n",
+      "type": "registry:file",
+      "target": "app/layout.tsx"
+    },
+    {
+      "path": "src/components/ui/sonner.tsx",
+      "content": "\"use client\";\n\nimport { useTheme } from \"next-themes\";\nimport { Toaster as Sonner, type ToasterProps } from \"sonner\";\nimport { type CSSProperties } from \"react\";\n\nconst Toaster = ({ ...props }: ToasterProps) => {\n  const { theme = \"system\" } = useTheme();\n\n  return (\n    <Sonner\n      theme={theme as ToasterProps[\"theme\"]}\n      className=\"toaster group\"\n      toastOptions={{\n          classNames: {\n              description: \"!text-popover-foreground\",\n          },\n      }}\n      style={\n        {\n          \"--normal-bg\": \"var(--popover)\",\n          \"--normal-text\": \"var(--popover-foreground)\",\n          \"--normal-description\": \"var(--popover-foreground)\",\n          \"--normal-border\": \"var(--border)\",\n        } as CSSProperties\n      }\n      {...props}\n    />\n  );\n};\n\nexport { Toaster };\n",
+      "type": "registry:file",
+      "target": "components/ui/sonner.tsx"
+    }
+  ],
+  "type": "registry:ui"
+}

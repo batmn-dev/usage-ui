@@ -6,16 +6,15 @@
   "tailwind": {
     "config": "",
     "css": "src/styles/globals.css",
-    "baseColor": "gray",
-    "cssVariables": true,
-    "prefix": ""
+    "baseColor": "neutral",
+    "cssVariables": true
   },
+  "iconLibrary": "lucide",
   "aliases": {
     "components": "@/components",
     "utils": "@/lib/utils",
-    "ui": "@/components/ui",
+    "hooks": "@/hooks",
     "lib": "@/lib",
-    "hooks": "@/hooks"
-  },
-  "iconLibrary": "lucide"
+    "ui": "@/components/ui"
+  }
 }

@@ -3,7 +3,7 @@
 .vscode
 
 # dependencies
-/node_modules
+node_modules/
 /.pnp
 .pnp.js
 .yarn/install-state.gz
@@ -43,3 +43,9 @@ next-env.d.ts
 .codex/
 .windsurf/
 .cursor/skills/
+
+# Monorepo build artifacts
+apps/www/.next/
+apps/www/.turbo/
+packages/ui/dist/
+.turbo/

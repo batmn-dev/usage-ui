@@ -160,6 +160,61 @@ fi
 echo ""
 
 # ============================================================================
+# 9. Site Registry File (if needed)
+# ============================================================================
+echo "📋 Checking site registry file..."
+
+if [ -f "apps/www/src/lib/registry.ts" ]; then
+  if grep -q "@/registry.json" apps/www/src/lib/registry.ts 2>/dev/null; then
+    if [ -f "apps/www/src/registry.json" ]; then
+      pass "apps/www/src/registry.json exists (required by registry.ts)"
+    else
+      fail "apps/www/src/registry.json missing (registry.ts imports it)"
+    fi
+  else
+    pass "registry.ts doesn't require @/registry.json"
+  fi
+else
+  pass "No registry.ts file (check not needed)"
+fi
+
+echo ""
+
+# ============================================================================
+# 10. Valid Module Exports
+# ============================================================================
+echo "📤 Checking module exports..."
+
+if [ -f "packages/ui/src/components/registry/index.ts" ]; then
+  if grep -q "export" packages/ui/src/components/registry/index.ts; then
+    pass "packages/ui/src/components/registry/index.ts has exports"
+  else
+    fail "packages/ui/src/components/registry/index.ts missing exports (add 'export {}')"
+  fi
+else
+  warn "packages/ui/src/components/registry/index.ts not found"
+fi
+
+echo ""
+
+# ============================================================================
+# 11. Core shadcn Dependencies
+# ============================================================================
+echo "📦 Checking shadcn dependencies..."
+
+if [ -f "packages/ui/package.json" ]; then
+  for dep in "class-variance-authority" "clsx" "tailwind-merge" "radix-ui"; do
+    if grep -q "\"$dep\"" packages/ui/package.json; then
+      pass "$dep in packages/ui"
+    else
+      fail "$dep missing in packages/ui/package.json"
+    fi
+  done
+fi
+
+echo ""
+
+# ============================================================================
 # Summary
 # ============================================================================
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"

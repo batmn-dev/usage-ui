@@ -1,0 +1,47 @@
+{
+  "name": "@usage-ui/ui",
+  "version": "0.1.0",
+  "private": false,
+  "sideEffects": false,
+  "exports": {
+    "./registry.json": "./registry.json",
+    "./components": "./src/components/index.ts",
+    "./components/*": "./src/components/*/index.ts",
+    "./hooks/*": "./src/hooks/*.ts",
+    "./lib/*": "./src/lib/*.ts",
+    "./styles/*": "./src/styles/*"
+  },
+  "scripts": {
+    "build": "pnpm dlx shadcn@latest build --output ../../apps/www/public/r",
+    "lint": "biome check src/",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "cmdk": "^1.1.1",
+    "embla-carousel-react": "^8.6.0",
+    "input-otp": "^1.4.2",
+    "lucide-react": "^0.506.0",
+    "next-themes": "^0.4.6",
+    "radix-ui": "^1.4.3",
+    "react-day-picker": "^9.12.0",
+    "react-hook-form": "^7.68.0",
+    "react-resizable-panels": "^3.0.6",
+    "recharts": "^2.15.4",
+    "sonner": "^2.0.7",
+    "tailwind-merge": "^3.4.0",
+    "vaul": "^1.1.2"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.7",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3",
+    "typescript": "^5.4.5"
+  },
+  "peerDependencies": {
+    "react": "^18.0.0 || ^19.0.0",
+    "react-dom": "^18.0.0 || ^19.0.0",
+    "tailwindcss": "^4.0.0"
+  }
+}
