@@ -161,3 +161,24 @@ className="bg-blue-500 text-white"
 - [ARCHITECTURE.md](./ARCHITECTURE.md) - Full roadmap and decision framework
 - [MONOREPO-MIGRATION.md](./MONOREPO-MIGRATION.md) - Migration checklist
 - [CLAUDE.md](./CLAUDE.md) - Extended AI context
+
+## AI Context Structure
+
+```
+.agents/
+├── skills/           # Reusable capabilities (HOW to do things)
+│   ├── shadcn-ui/    # shadcn/ui patterns and reference
+│   └── tailwind-v4-shadcn/  # Tailwind v4 setup
+│
+├── context/          # Passive knowledge (WHAT things are)
+│   ├── glossary.md   # Project terminology
+│   ├── research/     # Deep-dive research materials
+│   └── decisions/    # Architecture Decision Records (ADRs)
+│
+└── workflows/        # Step-by-step procedures
+    ├── add-registry-component.md
+    ├── release-process.md
+    └── monorepo-operations.md
+```
+
+**Load on-demand**: Skills, context, and workflows are NOT loaded automatically. AI agents fetch them when relevant to the task.

@@ -1,12 +1,94 @@
 # Monorepo Migration Guide
 
 > Step-by-step checklist for migrating Usage UI from single-app to monorepo structure.
+> 
+> **Approach**: Hybrid method — use shadcn CLI as a configuration reference, execute manual migration to preserve git history and customizations.
+
+## Table of Contents
+
+1. [Prerequisites](#prerequisites)
+2. [Migration Strategy](#migration-strategy)
+3. [Phase 0: Pre-flight & Reference Generation](#phase-0-pre-flight--reference-generation)
+4. [Phase 1: Root Configuration](#phase-1-root-configuration)
+5. [Phase 2: Directory Structure](#phase-2-directory-structure)
+6. [Phase 3: Move App to apps/www](#phase-3-move-app-to-appswww)
+7. [Phase 4: Set Up packages/ui](#phase-4-set-up-packagesui)
+8. [Phase 5: Shared Tooling](#phase-5-shared-tooling)
+9. [Phase 6: CI/CD](#phase-6-cicd)
+10. [Phase 7: Install and Verify](#phase-7-install-and-verify)
+11. [Phase 8: Cleanup](#phase-8-cleanup)
+12. [Phase 9: Post-Migration Validation](#phase-9-post-migration-validation)
+13. [Troubleshooting](#troubleshooting)
+14. [Common Pitfalls](#common-pitfalls)
+
+---
 
 ## Prerequisites
 
-- [ ] Node.js 22+ installed
-- [ ] pnpm 9.15+ installed
+- [ ] Node.js 22+ installed (`node --version`)
+- [ ] pnpm 9.15+ installed (`pnpm --version`)
 - [ ] Current codebase committed to git (clean working tree)
+- [ ] Backup branch created: `git checkout -b pre-monorepo-backup && git checkout -`
+
+---
+
+## Migration Strategy
+
+### Why Hybrid Approach?
+
+| Approach | Pros | Cons |
+|----------|------|------|
+| **Option A: CLI Scaffold** | Guaranteed correct config | Loses git history, requires manual code copy |
+| **Option B: Manual Only** | Preserves history | Prone to configuration errors |
+| **Hybrid (Recommended)** | Correct configs + preserved history | Slightly more setup time |
+
+### Hybrid Method
+
+1. **Generate reference**: Use `npx shadcn@latest init` in a temp directory to get correct configurations
+2. **Execute manually**: Migrate your project using the reference configs
+3. **Result**: Best of both worlds — correct configs AND preserved git history
+
+---
+
+## Phase 0: Pre-flight & Reference Generation
+
+### 0.1 Verify Clean State
+
+```bash
+# Ensure working tree is clean
+git status
+
+# Create backup branch
+git checkout -b pre-monorepo-backup
+git checkout -
+```
+
+### 0.2 Generate Reference Configuration (Optional but Recommended)
+
+```bash
+# Create temporary directory for reference
+# macOS/Linux:
+mkdir -p /tmp/shadcn-monorepo-reference
+cd /tmp/shadcn-monorepo-reference
+
+# Windows (PowerShell):
+# mkdir $env:TEMP\shadcn-monorepo-reference
+# cd $env:TEMP\shadcn-monorepo-reference
+
+# Generate reference monorepo structure
+pnpm dlx shadcn@latest init
+# Select: "Next.js (Monorepo)"
+# This creates correct turbo.json, components.json, tsconfig.json
+
+# Keep this open for reference during migration
+# Key files to reference:
+# - turbo.json
+# - apps/web/components.json
+# - packages/ui/components.json
+# - pnpm-workspace.yaml
+```
+
+**Checkpoint:** `[ ]` Reference generated or skipped
 
 ---
 
@@ -25,6 +107,8 @@ packages:
 
 ### 1.2 Update Root package.json
 
+> **Note**: Both `turbo run <task>` and `turbo <task>` work in Turbo v2+. We use `turbo run` for explicitness.
+
 Replace current `package.json` with:
 
 ```json
@@ -33,16 +117,16 @@ Replace current `package.json` with:
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "build": "turbo build",
-    "dev": "turbo dev",
-    "lint": "turbo lint",
-    "typecheck": "turbo typecheck",
-    "clean": "turbo clean && rm -rf node_modules",
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "clean": "turbo run clean && rm -rf node_modules .turbo",
     "format": "biome format --write .",
     "check": "biome check .",
     "changeset": "changeset",
     "version-packages": "changeset version",
-    "release": "turbo build --filter=./packages/* && changeset publish"
+    "release": "turbo run build --filter=./packages/* && changeset publish"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
@@ -73,12 +157,8 @@ Replace current `package.json` with:
       "cache": false,
       "persistent": true
     },
-    "lint": {
-      "dependsOn": ["^build"]
-    },
-    "typecheck": {
-      "dependsOn": ["^build"]
-    },
+    "lint": {},
+    "typecheck": {},
     "clean": {
       "cache": false
     }
@@ -96,7 +176,7 @@ pre-commit:
       glob: "*.{js,ts,tsx,json}"
       run: pnpm biome check --staged --no-errors-on-unmatched {staged_files}
     typecheck:
-      run: pnpm typecheck
+      run: pnpm run typecheck
 
 commit-msg:
   commands:
@@ -106,18 +186,28 @@ commit-msg:
         pattern="^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(\(.+\))?: .+"
         if ! echo "$message" | grep -qE "$pattern"; then
           echo "Commit message must follow Conventional Commits format"
+          echo "Examples: feat: add usage meter, fix(ui): correct color"
           exit 1
         fi
 ```
 
-**Checkpoint:** `[ ]` Root config files created
+### 1.5 Verify Root Config
+
+```bash
+# Verify files exist
+ls -la pnpm-workspace.yaml turbo.json lefthook.yml package.json
+```
+
+**Checkpoint:** `[ ]` Root config files created and verified
 
 ---
 
-## Phase 2: Create Directory Structure
+## Phase 2: Directory Structure
+
+### 2.1 Create All Directories
 
 ```bash
-# Create directories
+# Create monorepo directories
 mkdir -p apps/www
 mkdir -p packages/ui/src/{components/{ui,registry},hooks,lib,styles}
 mkdir -p tooling/typescript
@@ -125,20 +215,34 @@ mkdir -p .changeset
 mkdir -p .github/workflows
 ```
 
+### 2.2 Verify Structure
+
+```bash
+# Should show: apps, packages, tooling, .changeset, .github
+ls -la
+ls -la apps packages tooling
+```
+
 **Checkpoint:** `[ ]` Directory structure created
 
 ---
 
-## Phase 3: Move Current App to apps/www
+## Phase 3: Move App to apps/www
 
 ### 3.1 Move Source Files
 
 ```bash
-# Move app code
+# Move app code (order matters!)
 mv src apps/www/
 mv public apps/www/
 mv next.config.ts apps/www/
 mv postcss.config.mjs apps/www/
+
+# Keep these at root:
+# - biome.json (shared)
+# - tsconfig.json (will be updated)
+# - registry.json (will move to packages/ui)
+# - components.json (will be updated)
 ```
 
 ### 3.2 Create apps/www/package.json
@@ -209,7 +313,41 @@ mv postcss.config.mjs apps/www/
 }
 ```
 
-**Checkpoint:** `[ ]` apps/www configured
+### 3.4 Create apps/www/components.json
+
+> ⚠️ **Critical**: This file tells the shadcn CLI where to install components and how to resolve imports. The CSS path must point to the shared styles in packages/ui.
+
+```json
+{
+  "$schema": "https://ui.shadcn.com/schema.json",
+  "style": "new-york",
+  "rsc": true,
+  "tsx": true,
+  "tailwind": {
+    "config": "",
+    "css": "../../packages/ui/src/styles/globals.css",
+    "baseColor": "neutral",
+    "cssVariables": true
+  },
+  "iconLibrary": "lucide",
+  "aliases": {
+    "components": "@/components",
+    "hooks": "@/hooks",
+    "lib": "@/lib",
+    "utils": "@usage-ui/ui/lib/utils",
+    "ui": "@usage-ui/ui/components"
+  }
+}
+```
+
+### 3.5 Verify apps/www Structure
+
+```bash
+ls -la apps/www/
+# Should show: src/, public/, next.config.ts, postcss.config.mjs, package.json, tsconfig.json, components.json
+```
+
+**Checkpoint:** `[ ]` apps/www configured with all files
 
 ---
 
@@ -225,18 +363,18 @@ mv postcss.config.mjs apps/www/
   "sideEffects": false,
   "exports": {
     "./registry.json": "./registry.json",
+    "./components": "./src/components/index.ts",
     "./components/*": "./src/components/*/index.ts",
     "./hooks/*": "./src/hooks/*.ts",
     "./lib/*": "./src/lib/*.ts",
     "./styles/*": "./src/styles/*"
   },
   "scripts": {
-    "build": "npx shadcn@latest build",
+    "build": "pnpm dlx shadcn@latest build --output ../../apps/www/public/r",
     "lint": "biome check src/",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@tremor/react": "^3.18.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "radix-ui": "^1.4.3",
@@ -274,6 +412,8 @@ mv postcss.config.mjs apps/www/
 
 ### 4.3 Create packages/ui/registry.json
 
+> ⚠️ **Critical**: This is the component manifest. Start clean, add components as you build them.
+
 ```json
 {
   "$schema": "https://ui.shadcn.com/schema/registry.json",
@@ -285,6 +425,8 @@ mv postcss.config.mjs apps/www/
 
 ### 4.4 Create packages/ui/components.json
 
+> ⚠️ **Critical**: Aliases must use the package name pattern for proper resolution.
+
 ```json
 {
   "$schema": "https://ui.shadcn.com/schema.json",
@@ -295,17 +437,16 @@ mv postcss.config.mjs apps/www/
     "config": "",
     "css": "src/styles/globals.css",
     "baseColor": "neutral",
-    "cssVariables": true,
-    "prefix": ""
+    "cssVariables": true
   },
+  "iconLibrary": "lucide",
   "aliases": {
     "components": "@/components",
     "utils": "@/lib/utils",
-    "ui": "@/components/ui",
+    "hooks": "@/hooks",
     "lib": "@/lib",
-    "hooks": "@/hooks"
-  },
-  "iconLibrary": "lucide"
+    "ui": "@/components/ui"
+  }
 }
 ```
 
@@ -318,25 +459,42 @@ cp apps/www/src/lib/utils.ts packages/ui/src/lib/
 # Copy base shadcn components
 cp -r apps/www/src/components/ui/* packages/ui/src/components/ui/
 
-# Create styles with meter CSS variables
+# Copy hooks if any exist
+if ls apps/www/src/hooks/*.ts 1>/dev/null 2>&1; then
+  cp apps/www/src/hooks/*.ts packages/ui/src/hooks/
+else
+  echo "No hooks to copy (this is fine)"
+fi
 ```
 
 ### 4.6 Create packages/ui/src/styles/globals.css
 
+> This contains only the meter-specific CSS variables. The full theme remains in apps/www.
+
 ```css
 @import "tailwindcss";
 
+@theme inline {
+  /* Usage UI - Meter Status Colors */
+  --color-meter-success: oklch(0.723 0.191 142.5);
+  --color-meter-warning: oklch(0.795 0.184 86.047);
+  --color-meter-danger: oklch(0.637 0.237 25.331);
+  --color-meter-info: oklch(0.623 0.214 259.1);
+
+  /* Usage UI - Meter Track Colors */
+  --color-meter-track: oklch(0.928 0.006 264.5);
+  --color-meter-track-foreground: oklch(0.45 0.03 264.5);
+}
+
 @layer base {
   :root {
-    /* Usage UI - Meter Status Colors */
-    --meter-success: oklch(0.723 0.191 142.5);
-    --meter-warning: oklch(0.795 0.184 86.047);
-    --meter-danger: oklch(0.637 0.237 25.331);
-    --meter-info: oklch(0.623 0.214 259.1);
-
-    /* Usage UI - Meter Track Colors */
-    --meter-track: oklch(0.928 0.006 264.5);
-    --meter-track-foreground: oklch(0.45 0.03 264.5);
+    /* Meter CSS variables for direct use */
+    --meter-success: var(--color-meter-success);
+    --meter-warning: var(--color-meter-warning);
+    --meter-danger: var(--color-meter-danger);
+    --meter-info: var(--color-meter-info);
+    --meter-track: var(--color-meter-track);
+    --meter-track-foreground: var(--color-meter-track-foreground);
   }
 
   .dark {
@@ -350,13 +508,48 @@ cp -r apps/www/src/components/ui/* packages/ui/src/components/ui/
 }
 ```
 
-**Checkpoint:** `[ ]` packages/ui configured
+### 4.7 Create packages/ui/src/components/index.ts
+
+This barrel file enables the `@usage-ui/ui/components` import path:
+
+```ts
+// Re-export component directories
+export * from "./ui";
+export * from "./registry";
+```
+
+### 4.8 Verify packages/ui Structure
+
+```bash
+ls -la packages/ui/
+# Should show: src/, package.json, tsconfig.json, registry.json, components.json
+
+ls -la packages/ui/src/
+# Should show: components/, hooks/, lib/, styles/
+
+ls -la packages/ui/src/components/
+# Should show: ui/, registry/
+```
+
+**Checkpoint:** `[ ]` packages/ui configured with all files
 
 ---
 
 ## Phase 5: Shared Tooling
 
-### 5.1 Create tooling/typescript/base.json
+### 5.1 Create tooling/typescript/package.json
+
+> **Note**: Even though this folder only contains config files, pnpm requires a package.json for workspace recognition.
+
+```json
+{
+  "name": "@usage-ui/typescript-config",
+  "version": "0.0.0",
+  "private": true
+}
+```
+
+### 5.2 Create tooling/typescript/base.json
 
 ```json
 {
@@ -380,7 +573,7 @@ cp -r apps/www/src/components/ui/* packages/ui/src/components/ui/
 }
 ```
 
-### 5.2 Create .changeset/config.json
+### 5.3 Create .changeset/config.json
 
 ```json
 {
@@ -393,6 +586,25 @@ cp -r apps/www/src/components/ui/* packages/ui/src/components/ui/
   "baseBranch": "main",
   "updateInternalDependencies": "patch",
   "ignore": ["@usage-ui/www"]
+}
+```
+
+### 5.4 Update Root tsconfig.json
+
+Replace the root `tsconfig.json`:
+
+```json
+{
+  "extends": "./tooling/typescript/base.json",
+  "compilerOptions": {
+    "baseUrl": "."
+  },
+  "include": [],
+  "exclude": ["node_modules", "apps", "packages", "tooling"],
+  "references": [
+    { "path": "./apps/www" },
+    { "path": "./packages/ui" }
+  ]
 }
 ```
 
@@ -423,7 +635,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: pnpm/action-setup@v3
+      - uses: pnpm/action-setup@v4
         with:
           version: 9
 
@@ -436,13 +648,13 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Lint
-        run: pnpm lint
+        run: pnpm run lint
 
       - name: Type check
-        run: pnpm typecheck
+        run: pnpm run typecheck
 
       - name: Build
-        run: pnpm build
+        run: pnpm run build
 ```
 
 **Checkpoint:** `[ ]` CI/CD configured
@@ -451,29 +663,96 @@ jobs:
 
 ## Phase 7: Install and Verify
 
+### 7.1 Clean Install
+
 ```bash
-# Remove old node_modules and lock file
-rm -rf node_modules pnpm-lock.yaml
+# Remove old artifacts
+rm -rf node_modules pnpm-lock.yaml .turbo
 
-# Install all dependencies
+# Also remove from moved locations
+rm -rf apps/www/node_modules packages/ui/node_modules
+
+# Fresh install
 pnpm install
-
-# Verify builds work
-pnpm build
-
-# Start dev server
-pnpm dev
 ```
 
-**Checkpoint:** `[ ]` Build succeeds
+### 7.2 Verify Workspace Recognition
+
+```bash
+# Should show both packages
+pnpm ls --depth 0
+
+# Should list @usage-ui/www and @usage-ui/ui
+pnpm ls -r --depth 0
+```
+
+### 7.3 Test Build
+
+```bash
+# Build all packages
+pnpm run build
+
+# Expected: Both packages build successfully
+```
+
+### 7.4 Test Dev Server
+
+```bash
+# Start dev server
+pnpm run dev
+
+# Open http://localhost:3000 - should load
+```
+
+### 7.5 Test Individual Commands
+
+```bash
+# Lint all
+pnpm run lint
+
+# Type check all
+pnpm run typecheck
+
+# Test filter syntax
+pnpm run build --filter=@usage-ui/ui
+pnpm run build --filter=@usage-ui/www
+```
+
+**Checkpoint:** `[ ]` All builds and commands succeed
 
 ---
 
 ## Phase 8: Cleanup
 
-### 8.1 Remove Demo Components (Optional)
+### 8.1 Remove Old Root Files
 
 ```bash
+# Remove old files that were moved
+rm -f components.json  # Moved to apps/www/ and packages/ui/
+rm -f registry.json    # Replaced by packages/ui/registry.json
+
+# Keep at root:
+# - biome.json (shared)
+# - package.json (updated)
+# - tsconfig.json (updated)
+# - turbo.json (new)
+# - pnpm-workspace.yaml (new)
+# - lefthook.yml (new)
+```
+
+### 8.2 Enable Git Hooks
+
+```bash
+# Install lefthook hooks
+pnpm lefthook install
+```
+
+### 8.3 Remove Demo Components (Optional)
+
+If you want to start fresh without the Vercel Registry Starter demo components:
+
+```bash
+# Remove demo brand components
 rm -f apps/www/src/components/brand-header.tsx
 rm -f apps/www/src/components/brand-sidebar.tsx
 rm -f apps/www/src/components/hero.tsx
@@ -481,46 +760,196 @@ rm -f apps/www/src/components/login.tsx
 rm -f apps/www/src/components/logo.tsx
 rm -f apps/www/src/components/product-grid.tsx
 rm -f apps/www/src/components/promo.tsx
+rm -f apps/www/src/lib/products.ts
 ```
 
-### 8.2 Clean registry.json
+### 8.4 Update apps/www/src/app/globals.css
 
-Remove demo items from `packages/ui/registry.json`, keeping only the schema and empty items array.
+> ⚠️ **Important**: Choose ONE approach to avoid duplicate Tailwind base styles.
 
-### 8.3 Update Documentation
+**Option A: App owns Tailwind, package adds variables only**
 
-- [ ] Update README.md with monorepo structure
-- [ ] Update CLAUDE.md
-- [ ] Update AGENTS.md
-- [ ] Update .cursor/rules/
+Keep your existing `globals.css` with `@import "tailwindcss"`, then add meter variables:
+
+```css
+@import "tailwindcss";
+
+/* Import meter-specific CSS variables (no Tailwind base) */
+@import "@usage-ui/ui/styles/meter-variables.css";
+
+/* Your existing theme variables... */
+```
+
+**Option B: Package owns shared styles (simpler)**
+
+Replace your `globals.css` to import everything from the package:
+
+```css
+/* Import complete shared styles including Tailwind */
+@import "@usage-ui/ui/styles/globals.css";
+
+/* App-specific overrides only */
+```
+
+If using Option A, rename `packages/ui/src/styles/globals.css` to `meter-variables.css` and remove the `@import "tailwindcss"` line from it.
+
+### 8.5 Update .gitignore
+
+Add monorepo-specific ignores:
+
+```bash
+# Add to .gitignore
+cat >> .gitignore << 'EOF'
+
+# Monorepo build artifacts
+apps/www/.next/
+apps/www/.turbo/
+packages/ui/dist/
+.turbo/
+
+# Generated registry files (optional - some prefer to commit these)
+# apps/www/public/r/
+EOF
+```
 
 **Checkpoint:** `[ ]` Cleanup complete
 
 ---
 
-## Final Verification Checklist
+## Phase 9: Post-Migration Validation
 
-- [ ] `pnpm install` completes without errors
-- [ ] `pnpm build` builds all packages
-- [ ] `pnpm dev` starts the dev server
-- [ ] `pnpm lint` passes
-- [ ] `pnpm typecheck` passes
-- [ ] `http://localhost:3000` loads correctly
-- [ ] Git hooks work (`pnpm lefthook install`)
+### 9.1 Final Verification Checklist
 
----
+```bash
+# Run all checks
+pnpm install          # ✅ Should complete without errors
+pnpm run build        # ✅ Should build all packages
+pnpm run dev          # ✅ Should start dev server
+pnpm run lint         # ✅ Should pass
+pnpm run typecheck    # ✅ Should pass
+```
 
-## Post-Migration: First Component
+### 9.2 Test shadcn CLI Integration
 
-Once migration is complete, validate by creating the first component:
+```bash
+# Navigate to apps/www
+cd apps/www
 
-1. Create `packages/ui/src/components/registry/usage-meter/`
-2. Add `usage-meter.tsx` and `usage-meter-base.tsx`
-3. Add to `packages/ui/registry.json`
-4. Run `pnpm build`
-5. Test: `npx shadcn add http://localhost:3000/r/usage-meter.json`
+# Test adding a component (should install to packages/ui)
+pnpm dlx shadcn@latest add button --dry-run
 
-See [ARCHITECTURE.md](./ARCHITECTURE.md) for component templates and detailed guidance.
+# The CLI should recognize the monorepo structure
+```
+
+### 9.3 Verify Browser
+
+- [ ] Open `http://localhost:3000`
+- [ ] Site loads correctly
+- [ ] No console errors
+- [ ] Theme works (light/dark toggle if present)
+
+### 9.4 Test Git Hooks
+
+```bash
+# Create a test commit
+git add .
+git commit -m "test: verify hooks work"
+# Should run lint and typecheck before commit
+
+# If using conventional commits, this should fail:
+git commit -m "bad commit message"
+```
+
+### 9.5 Create First Component (Validates Setup)
+
+Create a minimal component to validate the entire pipeline:
+
+```bash
+# Create component directory
+mkdir -p packages/ui/src/components/registry/usage-meter
+
+# Create minimal component file
+cat > packages/ui/src/components/registry/usage-meter/usage-meter.tsx << 'EOF'
+"use client"
+
+import * as React from "react"
+import { cn } from "@/lib/utils"
+
+interface UsageMeterProps extends React.HTMLAttributes<HTMLDivElement> {
+  value: number
+  max?: number
+}
+
+function UsageMeter({ value, max = 100, className, ...props }: UsageMeterProps) {
+  const percentage = Math.min(100, Math.max(0, (value / max) * 100))
+  
+  return (
+    <div
+      role="progressbar"
+      aria-valuenow={value}
+      aria-valuemin={0}
+      aria-valuemax={max}
+      className={cn("relative h-3 w-full overflow-hidden rounded-full bg-secondary", className)}
+      {...props}
+    >
+      <div
+        className="h-full bg-primary transition-all"
+        style={{ width: `${percentage}%` }}
+      />
+    </div>
+  )
+}
+
+export { UsageMeter }
+export type { UsageMeterProps }
+EOF
+
+# Create index file
+cat > packages/ui/src/components/registry/usage-meter/index.ts << 'EOF'
+export { UsageMeter } from "./usage-meter"
+export type { UsageMeterProps } from "./usage-meter"
+EOF
+```
+
+Add to `packages/ui/registry.json`:
+
+```json
+{
+  "$schema": "https://ui.shadcn.com/schema/registry.json",
+  "name": "usage-ui",
+  "homepage": "https://usage-ui.vercel.app",
+  "items": [
+    {
+      "name": "usage-meter",
+      "type": "registry:component",
+      "title": "Usage Meter",
+      "description": "A linear meter for displaying usage/quota percentages.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "src/components/registry/usage-meter/usage-meter.tsx",
+          "target": "components/ui/usage-meter.tsx"
+        }
+      ]
+    }
+  ]
+}
+```
+
+Test the build:
+
+```bash
+# Build registry (outputs to apps/www/public/r/)
+pnpm run build --filter=@usage-ui/ui
+
+# Verify output exists
+ls apps/www/public/r/usage-meter.json
+```
+
+> **Note**: The `--output` flag in `packages/ui/package.json` build script tells shadcn where to generate the registry JSON files.
+
+**Checkpoint:** `[ ]` Migration complete and validated
 
 ---
 
@@ -528,16 +957,168 @@ See [ARCHITECTURE.md](./ARCHITECTURE.md) for component templates and detailed gu
 
 ### "Workspace package not found"
 
-Ensure `pnpm-workspace.yaml` is at root and includes all package paths.
+**Cause**: `pnpm-workspace.yaml` missing or malformed.
+
+**Fix**:
+```bash
+# Verify file exists at root
+cat pnpm-workspace.yaml
+
+# Should contain:
+# packages:
+#   - "apps/*"
+#   - "packages/*"
+#   - "tooling/*"
+```
 
 ### "Cannot find module @usage-ui/ui"
 
-Check `apps/www/tsconfig.json` has the correct path mapping.
+**Cause**: TypeScript path mapping incorrect or pnpm not recognizing workspace.
+
+**Fix**:
+```bash
+# Check apps/www/tsconfig.json has:
+# "paths": {
+#   "@usage-ui/ui": ["../../packages/ui/src"],
+#   "@usage-ui/ui/*": ["../../packages/ui/src/*"]
+# }
+
+# Reinstall to refresh workspace links
+rm -rf node_modules pnpm-lock.yaml
+pnpm install
+```
 
 ### "turbo: command not found"
 
-Run `pnpm install` to install turbo as a devDependency.
+**Cause**: Turbo not installed in devDependencies.
+
+**Fix**:
+```bash
+pnpm install
+# or explicitly:
+pnpm add -D turbo -w
+```
+
+### "Recursive turbo invocations" (Turbo v1 only)
+
+**Cause**: In Turbo v1, script names conflicting with task names caused recursion.
+
+**Note**: Turbo v2+ handles this automatically. If you're on v2+, this is not an issue. For v1:
+
+**Fix**: Use `turbo run build` not `turbo build`:
+```json
+{
+  "scripts": {
+    "build": "turbo run build"  // Explicit form (works in all versions)
+  }
+}
+```
 
 ### Build fails with type errors
 
-Ensure `tooling/typescript/base.json` exists and all tsconfigs extend it.
+**Cause**: TypeScript config not extending shared base.
+
+**Fix**:
+```bash
+# Verify tooling/typescript/base.json exists
+cat tooling/typescript/base.json
+
+# Verify packages extend it:
+# apps/www/tsconfig.json: "extends": "../../tooling/typescript/base.json"
+# packages/ui/tsconfig.json: "extends": "../../tooling/typescript/base.json"
+```
+
+### "Cannot find CSS file" or styles not working
+
+**Cause**: CSS path in `components.json` is incorrect.
+
+**Fix**: Verify paths:
+```
+apps/www/components.json:
+  "css": "../../packages/ui/src/styles/globals.css"
+
+packages/ui/components.json:
+  "css": "src/styles/globals.css"
+```
+
+### shadcn CLI installs to wrong location
+
+**Cause**: `components.json` aliases not pointing to workspace package.
+
+**Fix**: In `apps/www/components.json`:
+```json
+{
+  "aliases": {
+    "utils": "@usage-ui/ui/lib/utils",
+    "ui": "@usage-ui/ui/components"
+  }
+}
+```
+
+---
+
+## Common Pitfalls
+
+| Pitfall | Prevention |
+|---------|------------|
+| Script recursion (Turbo v1) | Use `turbo run <task>` in root scripts (v2+ handles this) |
+| CSS path wrong | Use relative paths from the file's location |
+| Missing workspace protocol | Use `workspace:*` for internal deps |
+| Forgetting `pnpm-workspace.yaml` | Create before running `pnpm install` |
+| Not copying `utils.ts` | Copy to `packages/ui/src/lib/utils.ts` |
+| Mismatched component.json aliases | Use `@usage-ui/ui/` prefix for shared code |
+| Old node_modules | Clean install after restructuring |
+| Missing shared tsconfig | Create `tooling/typescript/base.json` first |
+| Missing tooling package.json | Add minimal package.json to `tooling/typescript/` |
+| Duplicate Tailwind imports | Only ONE package should `@import "tailwindcss"` |
+| Export/alias mismatch | Ensure package exports match component.json aliases |
+
+---
+
+## Quick Reference
+
+### Package Names
+
+| Package | Name | Location |
+|---------|------|----------|
+| Docs Site | `@usage-ui/www` | `apps/www/` |
+| Component Library | `@usage-ui/ui` | `packages/ui/` |
+
+### Key Commands
+
+```bash
+# Development
+pnpm run dev                              # Start all
+pnpm run dev --filter=@usage-ui/www       # Start docs only
+
+# Building
+pnpm run build                            # Build all
+pnpm run build --filter=@usage-ui/ui      # Build UI only
+
+# Quality
+pnpm run lint
+pnpm run typecheck
+
+# Dependencies
+pnpm add <pkg> --filter=@usage-ui/ui      # Add to UI
+pnpm add <pkg> --filter=@usage-ui/www     # Add to docs
+pnpm add -D <pkg> -w                      # Add to root
+```
+
+### File Locations After Migration
+
+| What | Where |
+|------|-------|
+| Your meter components | `packages/ui/src/components/registry/` |
+| Base shadcn components | `packages/ui/src/components/ui/` |
+| Shared utilities | `packages/ui/src/lib/` |
+| Shared hooks | `packages/ui/src/hooks/` |
+| Shared styles | `packages/ui/src/styles/` |
+| Component manifest | `packages/ui/registry.json` |
+| Docs site | `apps/www/` |
+| Site-specific components | `apps/www/src/components/` |
+
+---
+
+*Last updated: January 2026*
+*Based on shadcn/ui monorepo support (December 2024), Turborepo v2 best practices, and Tailwind CSS v4*
