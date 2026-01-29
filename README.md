@@ -9,7 +9,7 @@
   <a href="#components"><strong>Components</strong></a> ·
   <a href="#tech-stack"><strong>Tech Stack</strong></a> ·
   <a href="#running-locally"><strong>Running Locally</strong></a> ·
-  <a href="#project-structure"><strong>Project Structure</strong></a> ·
+  <a href="#monorepo-structure"><strong>Monorepo Structure</strong></a> ·
   <a href="https://ui.shadcn.com/docs/registry"><strong>Registry Docs</strong></a>
 </p>
 
@@ -17,13 +17,14 @@
 
 ## Overview
 
-Usage UI is a **shadcn-style component registry** (not an npm package) focused on usage meters and quota visualization. Components are distributed via the shadcn CLI and copied directly into your project—you own and modify the code.
+Usage UI is a **shadcn-style component registry** (not an npm package) focused on usage meters and quota visualization. Built as a **monorepo** using pnpm workspaces and Turborepo, components are distributed via the shadcn CLI and copied directly into your project—you own and modify the code.
 
 ### Key Features
 
 - **Usage-focused components**: Linear meters, circular gauges, quota cards, and more
 - **Full shadcn/ui compatibility**: Works with the shadcn CLI and theming system
 - **Dual primitive support**: Both Radix-based (accessible) and lightweight base versions
+- **Monorepo architecture**: Clean separation between docs site and component library
 - **Modern stack**: Next.js 16+, React 19, TypeScript, Tailwind CSS v4
 - **OKLCH color space**: Modern color system with semantic CSS variables
 
@@ -76,6 +77,7 @@ npx shadcn add @usage-ui/usage-meter
 
 | Technology | Version | Purpose |
 |------------|---------|---------|
+| **Monorepo** | pnpm 9+ + Turborepo | Workspace management |
 | Next.js | 16+ | Framework (App Router, RSC) |
 | React | 19 | UI Library |
 | TypeScript | 5.4+ | Type Safety |
@@ -83,7 +85,7 @@ npx shadcn add @usage-ui/usage-meter
 | Radix UI | 1.4+ | Accessible Primitives |
 | Recharts | 2.15+ | Charts |
 | Biome | 1.9+ | Linting & Formatting |
-| pnpm | 9+ | Package Manager |
+| Changesets | 2.27+ | Version Management |
 
 ## Running Locally
 
@@ -91,53 +93,84 @@ npx shadcn add @usage-ui/usage-meter
 # Install dependencies
 pnpm install
 
-# Start development server (builds registry first)
+# Start all development servers
 pnpm dev
 
-# Build for production
+# Start only the docs site
+pnpm dev --filter=@usage-ui/www
+
+# Build all packages
 pnpm build
 
-# Lint code
+# Build only the UI package
+pnpm build --filter=@usage-ui/ui
+
+# Lint all packages
 pnpm lint
+
+# Type check all packages
+pnpm typecheck
 ```
 
-Your app will be running at [localhost:3000](http://localhost:3000).
+Your docs site will be running at [localhost:3000](http://localhost:3000).
 
-## Project Structure
+## Monorepo Structure
 
 ```
-src/
-├── app/
-│   ├── (registry)/       # Registry browser pages
-│   ├── demo/[name]/      # Component demo pages
-│   └── globals.css       # Theme CSS variables (OKLCH)
-├── components/
-│   ├── ui/               # shadcn/ui base components (46+)
-│   └── registry/         # Registry-specific components
-├── layouts/              # Shell, minimal layouts
-├── lib/                  # Utilities (cn, registry helpers)
-└── hooks/                # Custom React hooks
+usage-ui/
+├── apps/
+│   └── www/                    # Documentation + demo site (@usage-ui/www)
+│       ├── src/
+│       │   ├── app/            # Next.js pages
+│       │   └── components/     # Site-specific components
+│       └── public/r/           # Generated registry JSON (do not edit)
+│
+├── packages/
+│   └── ui/                     # Component registry (@usage-ui/ui)
+│       ├── src/
+│       │   ├── components/
+│       │   │   ├── ui/         # Base shadcn components (do not modify)
+│       │   │   └── registry/   # YOUR meter components go here
+│       │   ├── hooks/          # Shared hooks
+│       │   ├── lib/            # Utilities (cn, etc.)
+│       │   └── styles/         # CSS variables
+│       ├── registry.json       # Component manifest (CRITICAL)
+│       └── components.json     # shadcn CLI config
+│
+├── tooling/
+│   └── typescript/             # Shared TypeScript configs
+│
+├── turbo.json                  # Build orchestration
+├── pnpm-workspace.yaml         # Workspace definition
+└── lefthook.yml                # Git hooks
 ```
+
+### Package Names
+
+| Package | Name | Location |
+|---------|------|----------|
+| Documentation Site | `@usage-ui/www` | `apps/www/` |
+| Component Library | `@usage-ui/ui` | `packages/ui/` |
 
 ### Key Files
 
-| File | Purpose |
-|------|---------|
-| `registry.json` | Component manifest for shadcn CLI |
-| `components.json` | shadcn CLI configuration |
-| `src/app/globals.css` | Theme CSS variables |
-| `public/r/*.json` | Generated registry files (do not edit) |
+| File | Location | Purpose |
+|------|----------|---------|
+| `registry.json` | `packages/ui/` | Component manifest for shadcn CLI |
+| `components.json` | `packages/ui/` | shadcn CLI configuration |
+| `globals.css` | `packages/ui/src/styles/` | Meter CSS variables |
+| `public/r/*.json` | `apps/www/` | Generated registry files (do not edit) |
 
 ## Theming
 
-Customize the theme by modifying CSS variables in [`globals.css`](./src/app/globals.css). This project uses OKLCH color space for modern color management.
+Customize the theme by modifying CSS variables in `packages/ui/src/styles/globals.css`. This project uses OKLCH color space for modern color management.
 
 ```css
 :root {
-  --primary: oklch(0.52 0.13 144.17);
   --meter-success: oklch(0.723 0.191 142.5);
   --meter-warning: oklch(0.795 0.184 86.047);
   --meter-danger: oklch(0.637 0.237 25.331);
+  --meter-info: oklch(0.623 0.214 259.1);
 }
 ```
 
@@ -155,16 +188,18 @@ This registry works with AI coding tools (Cursor, Windsurf) via MCP. The `regist
 
 1. Clone the repository
 2. Install dependencies: `pnpm install`
-3. Create components in `src/components/registry/`
-4. Add entries to `registry.json`
+3. Create components in `packages/ui/src/components/registry/`
+4. Add entries to `packages/ui/registry.json`
 5. Test locally: `pnpm dev`
-6. Submit a PR
+6. Create a changeset: `pnpm changeset`
+7. Submit a PR
 
-See [ARCHITECTURE.md](./ARCHITECTURE.md) for detailed development guidelines.
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for detailed guidelines.
 
 ## Documentation
 
 - [ARCHITECTURE.md](./ARCHITECTURE.md) - Full architecture guide and component roadmap
+- [CONTRIBUTING.md](./CONTRIBUTING.md) - Contribution guidelines
 - [CLAUDE.md](./CLAUDE.md) - AI agent context file
 - [AGENTS.md](./AGENTS.md) - Quick reference for AI coding assistants
 - [shadcn/ui Registry Docs](https://ui.shadcn.com/docs/registry) - Official registry documentation

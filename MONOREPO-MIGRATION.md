@@ -1,8 +1,13 @@
 # Monorepo Migration Guide
 
-> Step-by-step checklist for migrating Usage UI from single-app to monorepo structure.
-> 
-> **Approach**: Hybrid method — use shadcn CLI as a configuration reference, execute manual migration to preserve git history and customizations.
+> ✅ **MIGRATION COMPLETE** - January 2026
+>
+> This guide documents the completed migration of Usage UI from single-app to monorepo structure.
+> It is preserved for reference and troubleshooting.
+
+---
+
+> **Approach Used**: Hybrid method — used shadcn CLI as a configuration reference, executed manual migration to preserve git history and customizations.
 
 ## Table of Contents
 
@@ -26,10 +31,10 @@
 
 ## Prerequisites
 
-- [ ] Node.js 22+ installed (`node --version`)
-- [ ] pnpm 9.15+ installed (`pnpm --version`)
-- [ ] Current codebase committed to git (clean working tree)
-- [ ] Backup branch created: `git checkout -b pre-monorepo-backup && git checkout -`
+- [x] Node.js 22+ installed (`node --version`)
+- [x] pnpm 9.15+ installed (`pnpm --version`)
+- [x] Current codebase committed to git (clean working tree)
+- [x] Backup branch created: `git checkout -b pre-monorepo-backup && git checkout -`
 
 ---
 
@@ -89,7 +94,7 @@ pnpm dlx shadcn@latest init
 # - pnpm-workspace.yaml
 ```
 
-**Checkpoint:** `[ ]` Reference generated or skipped
+**Checkpoint:** `[x]` Reference generated or skipped
 
 ---
 
@@ -199,7 +204,7 @@ commit-msg:
 ls -la pnpm-workspace.yaml turbo.json lefthook.yml package.json
 ```
 
-**Checkpoint:** `[ ]` Root config files created and verified
+**Checkpoint:** `[x]` Root config files created and verified
 
 ---
 
@@ -224,7 +229,7 @@ ls -la
 ls -la apps packages tooling
 ```
 
-**Checkpoint:** `[ ]` Directory structure created
+**Checkpoint:** `[x]` Directory structure created
 
 ---
 
@@ -385,8 +390,8 @@ If missing, copy from root before Phase 8 deletes it:
 cp registry.json apps/www/src/registry.json
 ```
 
-**Checkpoint:** `[ ]` apps/www configured with all files
-**Checkpoint:** `[ ]` Site registry file exists (if needed by registry.ts)
+**Checkpoint:** `[x]` apps/www configured with all files
+**Checkpoint:** `[x]` Site registry file exists (if needed by registry.ts)
 
 ---
 
@@ -620,7 +625,7 @@ ls -la packages/ui/src/components/
 # Should show: ui/, registry/
 ```
 
-**Checkpoint:** `[ ]` packages/ui configured with all files
+**Checkpoint:** `[x]` packages/ui configured with all files
 
 ---
 
@@ -697,7 +702,7 @@ Replace the root `tsconfig.json`:
 }
 ```
 
-**Checkpoint:** `[ ]` Shared tooling configured
+**Checkpoint:** `[x]` Shared tooling configured
 
 ---
 
@@ -746,7 +751,7 @@ jobs:
         run: pnpm run build
 ```
 
-**Checkpoint:** `[ ]` CI/CD configured
+**Checkpoint:** `[x]` CI/CD configured
 
 ---
 
@@ -807,7 +812,7 @@ pnpm run build --filter=@usage-ui/ui
 pnpm run build --filter=@usage-ui/www
 ```
 
-**Checkpoint:** `[ ]` All builds and commands succeed
+**Checkpoint:** `[x]` All builds and commands succeed
 
 ---
 
@@ -895,9 +900,9 @@ pnpm build          # Should succeed
 pnpm dev            # Should start without errors
 ```
 
-**Checkpoint:** `[ ]` All TypeScript errors resolved
-**Checkpoint:** `[ ]` Build succeeds without errors
-**Checkpoint:** `[ ]` Dev server starts cleanly
+**Checkpoint:** `[x]` All TypeScript errors resolved
+**Checkpoint:** `[x]` Build succeeds without errors
+**Checkpoint:** `[x]` Dev server starts cleanly
 
 ---
 
@@ -991,7 +996,7 @@ packages/ui/dist/
 EOF
 ```
 
-**Checkpoint:** `[ ]` Cleanup complete
+**Checkpoint:** `[x]` Cleanup complete
 
 ---
 
@@ -1022,10 +1027,10 @@ pnpm dlx shadcn@latest add button --dry-run
 
 ### 9.3 Verify Browser
 
-- [ ] Open `http://localhost:3000`
-- [ ] Site loads correctly
-- [ ] No console errors
-- [ ] Theme works (light/dark toggle if present)
+- [x] Open `http://localhost:3000`
+- [x] Site loads correctly
+- [x] No console errors
+- [x] Theme works (light/dark toggle if present)
 
 ### 9.4 Test Git Hooks
 
@@ -1128,7 +1133,7 @@ ls apps/www/public/r/usage-meter.json
 
 > **Note**: The `--output` flag in `packages/ui/package.json` build script tells shadcn where to generate the registry JSON files.
 
-**Checkpoint:** `[ ]` Migration complete and validated
+**Checkpoint:** `[x]` Migration complete and validated
 
 ---
 
