@@ -189,7 +189,7 @@ export function RegistrySidebar() {
                         >
                           <Link
                             onClick={() => setOpenMobile(false)}
-                            href={`/registry/${item.name}`}
+                            href={`/docs/${item.name}`}
                           >
                             {item.title}
                           </Link>
@@ -227,7 +227,7 @@ export function RegistrySidebar() {
                         >
                           <Link
                             onClick={() => setOpenMobile(false)}
-                            href={`/registry/${item.name}`}
+                            href={`/docs/${item.name}`}
                           >
                             {item.title}
                           </Link>
@@ -264,7 +264,7 @@ export function RegistrySidebar() {
                         >
                           <Link
                             onClick={() => setOpenMobile(false)}
-                            href={`/registry/${item.name}`}
+                            href={`/docs/${item.name}`}
                           >
                             {item.title}
                           </Link>

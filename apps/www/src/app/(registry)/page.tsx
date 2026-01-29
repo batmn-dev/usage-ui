@@ -51,7 +51,7 @@ export default function Home() {
                 className="flex items-center justify-between"
               >
                 <Link
-                  href={`/registry/${item.name}`}
+                  href={`/docs/${item.name}`}
                   className="text-sm hover:underline"
                 >
                   {item.title}
@@ -85,7 +85,7 @@ export default function Home() {
                   className="flex items-center justify-between"
                 >
                   <Link
-                    href={`/registry/${item.name}`}
+                    href={`/docs/${item.name}`}
                     className="text-sm hover:underline"
                   >
                     {item.title}
@@ -118,7 +118,7 @@ export default function Home() {
                   className="flex items-center justify-between"
                 >
                   <Link
-                    href={`/registry/${item.name}`}
+                    href={`/docs/${item.name}`}
                     className="text-sm hover:underline"
                   >
                     {item.title}
@@ -168,7 +168,7 @@ export default function Home() {
             To get begin, start with a block{" "}
             <span className="italic">
               (like the{" "}
-              <a href="/registry/blank" className="underline">
+              <a href="/docs/blank" className="underline">
                 blank block
               </a>
               )
