@@ -2,5 +2,36 @@
   "$schema": "https://ui.shadcn.com/schema/registry.json",
   "name": "usage-ui",
   "homepage": "https://usage-ui.vercel.app",
-  "items": []
+  "items": [
+    {
+      "name": "usage-meter",
+      "type": "registry:component",
+      "title": "Usage Meter",
+      "description": "A linear progress meter for displaying usage/quota information with full Radix accessibility support.",
+      "dependencies": ["radix-ui"],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "src/components/registry/usage-meter/usage-meter.tsx",
+          "type": "registry:component",
+          "target": "components/ui/usage-meter.tsx"
+        }
+      ]
+    },
+    {
+      "name": "usage-meter-base",
+      "type": "registry:component",
+      "title": "Usage Meter (Base)",
+      "description": "A lightweight linear progress meter for displaying usage/quota information without Radix dependency.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "src/components/registry/usage-meter/usage-meter-base.tsx",
+          "type": "registry:component",
+          "target": "components/ui/usage-meter-base.tsx"
+        }
+      ]
+    }
+  ]
 }
