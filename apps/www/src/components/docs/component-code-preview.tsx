@@ -3,11 +3,11 @@
 import { cn } from "@/lib/utils";
 import { Tabs } from "radix-ui";
 import { ClientCodeWrapper } from "./client-code-wrapper";
-import { CodeRenderer } from "./code-renderer";
 
 interface ComponentCodePreviewProps {
   name: string;
   code: string;
+  codeHtml: string;
   children: React.ReactNode;
   className?: string;
 }
@@ -15,6 +15,7 @@ interface ComponentCodePreviewProps {
 export function ComponentCodePreview({
   name,
   code,
+  codeHtml,
   children,
   className,
 }: ComponentCodePreviewProps) {
@@ -55,7 +56,15 @@ export function ComponentCodePreview({
 
       <Tabs.Content value="code" className="mt-4">
         <ClientCodeWrapper code={code}>
-          <CodeRenderer code={code} />
+          <div
+            className={cn(
+              "not-prose overflow-auto rounded-md border bg-background p-4 text-[13px]",
+              "[&_pre]:!bg-transparent [&_code]:!bg-transparent",
+              "dark:[&_span]:!text-[var(--shiki-dark)]",
+            )}
+            // biome-ignore lint/security/noDangerouslySetInnerHtml: Shiki returns safe pre-rendered HTML
+            dangerouslySetInnerHTML={{ __html: codeHtml }}
+          />
         </ClientCodeWrapper>
       </Tabs.Content>
     </Tabs.Root>

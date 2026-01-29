@@ -1,13 +1,16 @@
 import fs from "node:fs";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { cache } from "react";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 /**
  * Get the path to the packages/ui directory from apps/www.
  */
 function getPackageUiPath(): string {
-  // In monorepo: apps/www -> packages/ui
-  return path.join(process.cwd(), "..", "..", "packages", "ui");
+  // From apps/www/src/lib/ -> packages/ui (4 levels up, then into packages/ui)
+  return path.join(__dirname, "..", "..", "..", "..", "packages", "ui");
 }
 
 /**

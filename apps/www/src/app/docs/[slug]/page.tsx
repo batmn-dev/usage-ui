@@ -1,3 +1,4 @@
+import { demos } from "@/app/demo/[name]";
 import {
   ApiTable,
   ComponentCodePreview,
@@ -12,6 +13,7 @@ import {
   getRegistryItem,
   getRegistryItems,
 } from "@/lib/registry";
+import { highlightCode } from "@/lib/shiki";
 import { notFound } from "next/navigation";
 
 export async function generateStaticParams() {
@@ -55,6 +57,7 @@ export default async function ComponentDocPage({
   }
 
   const sourceCode = getComponentSource(slug);
+  const codeHtml = await highlightCode(sourceCode, "tsx");
   const componentType = component.type as
     | "registry:component"
     | "registry:block"
@@ -81,7 +84,7 @@ export default async function ComponentDocPage({
         Basic
       </h3>
       <div className="mt-4">
-        <ComponentCodePreview name={slug} code={sourceCode}>
+        <ComponentCodePreview name={slug} code={sourceCode} codeHtml={codeHtml}>
           <PreviewErrorBoundary>
             <ComponentPreview
               name={slug}
@@ -92,7 +95,7 @@ export default async function ComponentDocPage({
               }
             >
               {/* Dynamic preview rendered via iframe for blocks */}
-              {componentType !== "registry:block" && (
+              {componentType !== "registry:block" && demos[slug] && (
                 <iframe
                   src={`/demo/${slug}`}
                   className="h-[350px] w-full rounded-md border-0"
