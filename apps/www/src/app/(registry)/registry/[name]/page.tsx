@@ -37,7 +37,7 @@ export default async function RegistryItemPage({
               Back to Home
             </Link>
           </Button>
-          <h1 className="font-bold text-3xl tracking-tight">
+          <h1 className="text-balance font-semibold text-3xl tracking-tight">
             {component.title}
           </h1>
         </div>

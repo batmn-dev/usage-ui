@@ -20,10 +20,10 @@ export default function Home() {
     <main className="container mt-4 p-5 md:mt-8 md:p-10">
       <div className="mb-8">
         <div className="space-y-2">
-          <h1 className="font-bold text-3xl tracking-tight md:text-4xl">
+          <h1 className="text-balance font-semibold text-3xl tracking-tight md:text-4xl">
             Registry
           </h1>
-          <p className="text-muted-foreground">
+          <p className="text-muted-foreground leading-7">
             Distribute your design system tokens, custom components, hooks,
             pages, and other files to any React project.
           </p>
@@ -134,7 +134,7 @@ export default function Home() {
       <div className="mb-4 rounded-lg border bg-card p-6">
         <div className="flex flex-col gap-2">
           <h2 className="font-semibold text-xl">MCP</h2>
-          <p className="mb-4 text-muted-foreground">
+          <p className="mb-4 text-muted-foreground leading-7">
             Integrate this registry with AI IDEs using Model Context Protocol
             (MCP) using the following configuration. This utilizes this
             Registry's theme tokens and CSS variables with the Shadcn CLI. To
@@ -155,7 +155,7 @@ export default function Home() {
       <div className="rounded-lg border bg-card p-6">
         <div className="flex flex-col gap-2">
           <h2 className="font-semibold text-xl">About</h2>
-          <p className="text-muted-foreground">
+          <p className="text-muted-foreground leading-7">
             This registry serves as a central repository for all UI components
             and blocks used in your applications. It helps maintain consistency
             across your products and speeds up development by providing
@@ -164,7 +164,7 @@ export default function Home() {
             components, and view examples of how they are used in different
             contexts.
           </p>
-          <p className="mt-2 text-muted-foreground">
+          <p className="mt-2 text-muted-foreground leading-7">
             To get begin, start with a block{" "}
             <span className="italic">
               (like the{" "}
