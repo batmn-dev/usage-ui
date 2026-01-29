@@ -8,6 +8,7 @@ import {
   PreviewErrorBoundary,
 } from "@/components/docs";
 import { getComponentSource } from "@/lib/code";
+import { formatPropsForApiTable, getComponentProps } from "@/lib/extract-props";
 import {
   type Component,
   getRegistryItem,
@@ -125,22 +126,17 @@ export default async function ComponentDocPage({
       </h3>
 
       <div className="mt-4">
-        <ApiTable
-          data={[
-            {
-              prop: "className",
-              type: "string",
-              default: "—",
-              description: "Additional CSS classes to apply",
-            },
-            {
-              prop: "...props",
-              type: "ComponentProps",
-              default: "—",
-              description: "All other props are passed to the root element",
-            },
-          ]}
-        />
+        {(() => {
+          const docs = getComponentProps(slug);
+          const props = docs[0]?.props ?? [];
+          return props.length > 0 ? (
+            <ApiTable data={formatPropsForApiTable(props)} />
+          ) : (
+            <p className="text-muted-foreground text-sm">
+              No props documentation available.
+            </p>
+          );
+        })()}
       </div>
 
       {/* Navigation */}

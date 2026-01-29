@@ -6,9 +6,9 @@ import { cn } from "@/lib/utils";
 
 const meterVariants = {
   default: "bg-primary",
-  success: "bg-[--meter-success]",
-  warning: "bg-[--meter-warning]",
-  danger: "bg-[--meter-danger]",
+  success: "bg-chart-2",
+  warning: "bg-chart-4",
+  danger: "bg-destructive",
 } as const;
 
 const meterSizes = {
@@ -86,7 +86,7 @@ const UsageMeterBase = React.forwardRef<HTMLDivElement, UsageMeterBaseProps>(
           aria-valuetext={`${clampedPercentage}%`}
           aria-label={label}
           className={cn(
-            "relative w-full overflow-hidden rounded-full bg-[--meter-track]",
+            "relative w-full overflow-hidden rounded-full bg-secondary",
             meterSizes[size],
             className,
           )}
