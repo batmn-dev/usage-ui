@@ -1,0 +1,86 @@
+---
+description: "Essential project context for Usage UI - a shadcn/ui component registry for usage meters and quota visualization"
+alwaysApply: true
+---
+
+# Usage UI - Project Context
+
+> A shadcn/ui component registry for building usage meters, quota indicators, and resource consumption visualizations.
+
+## Tech Stack
+
+- **Framework**: Next.js 15+ (App Router, React Server Components)
+- **Language**: TypeScript (strict mode)
+- **UI**: shadcn/ui (new-york style), Radix UI primitives
+- **Styling**: Tailwind CSS v4, CSS variables (OKLCH color space)
+- **Package Manager**: pnpm (NOT npm or yarn)
+- **Linting**: Biome (NOT ESLint/Prettier)
+- **Icons**: Lucide React
+
+## Project Structure
+
+```
+src/
+├── app/                    # Next.js App Router
+│   ├── (registry)/         # Registry browser pages
+│   ├── demo/[name]/        # Component demo pages
+│   └── globals.css         # Theme CSS variables
+├── components/
+│   ├── ui/                 # shadcn/ui primitives (DO NOT MODIFY)
+│   └── registry/           # Registry-specific components
+├── layouts/                # Layout components
+├── lib/
+│   └── utils.ts            # cn() utility and helpers
+└── hooks/                  # Custom React hooks
+```
+
+## Critical Files (Modify with Care)
+
+| File | Risk | Notes |
+|------|------|-------|
+| `registry.json` | 🔴 CRITICAL | Breaking changes break ALL installations |
+| `components.json` | 🔴 CRITICAL | shadcn CLI config - invalid = CLI fails |
+| `globals.css` | 🟡 HIGH | CSS variables affect all components |
+| `src/components/ui/*` | 🟡 HIGH | Base shadcn components - prefer not editing |
+
+## Import Aliases
+
+Always use path aliases, never relative imports:
+
+```tsx
+// ✅ Correct
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+
+// ❌ Wrong - breaks when copied to user projects
+import { cn } from "../../lib/utils";
+```
+
+## Key Commands
+
+```bash
+pnpm dev          # Start development server
+pnpm build        # Build for production (generates registry JSON)
+pnpm lint         # Run Biome linter
+pnpm check        # Biome check (lint + format)
+```
+
+## Registry Distribution
+
+Components are distributed via shadcn CLI, NOT npm:
+
+```bash
+# Users install like this:
+npx shadcn add https://usage-ui.vercel.app/r/usage-meter.json
+```
+
+Components are **copied** into user projects at `components/ui/` - they own the code.
+
+## Do NOT
+
+- ❌ Use `npm` commands (use `pnpm`)
+- ❌ Modify existing component APIs without updating registry.json
+- ❌ Use hardcoded colors (use CSS variables)
+- ❌ Create components without TypeScript types
+- ❌ Use default exports for components
+- ❌ Skip the `"use client"` directive for client components

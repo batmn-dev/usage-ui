@@ -1,0 +1,197 @@
+---
+description: "shadcn/ui component patterns and conventions for building UI primitives"
+globs: ["**/components/**/*.tsx"]
+---
+
+# shadcn/ui Component Patterns
+
+## Component Template
+
+Every UI component should follow this structure:
+
+```tsx
+"use client";
+
+import * as React from "react";
+import { cva, type VariantProps } from "class-variance-authority";
+
+import { cn } from "@/lib/utils";
+
+const componentVariants = cva(
+  "base-classes-here",
+  {
+    variants: {
+      variant: {
+        default: "bg-primary text-primary-foreground",
+        secondary: "bg-secondary text-secondary-foreground",
+      },
+      size: {
+        sm: "h-8 text-sm",
+        default: "h-10",
+        lg: "h-12 text-lg",
+      },
+    },
+    defaultVariants: {
+      variant: "default",
+      size: "default",
+    },
+  }
+);
+
+interface ComponentProps
+  extends React.ComponentProps<"div">,
+    VariantProps<typeof componentVariants> {
+  // Additional props here
+}
+
+function Component({
+  className,
+  variant,
+  size,
+  ...props
+}: ComponentProps) {
+  return (
+    <div
+      data-slot="component"
+      className={cn(componentVariants({ variant, size }), className)}
+      {...props}
+    />
+  );
+}
+
+export { Component, componentVariants };
+export type { ComponentProps };
+```
+
+## Key Patterns
+
+### data-slot Attribute
+
+Add `data-slot` for styling hooks (shadcn convention):
+
+```tsx
+// ✅ Good
+<div data-slot="card" className={...} />
+<div data-slot="card-header" className={...} />
+
+// ❌ Bad - missing data-slot
+<div className={...} />
+```
+
+### cn() Utility
+
+Always use `cn()` for className merging:
+
+```tsx
+// ✅ Good - allows className override
+className={cn("fixed z-50 border-b", className)}
+
+// ❌ Bad - no cn(), can't override
+className={"fixed z-50 border-b " + className}
+```
+
+### Variant Classes with cva
+
+Use `class-variance-authority` for variants:
+
+```tsx
+// ✅ Good - cva pattern
+const buttonVariants = cva(
+  "inline-flex items-center justify-center rounded-md",
+  {
+    variants: {
+      variant: {
+        default: "bg-primary text-primary-foreground hover:bg-primary/90",
+        destructive: "bg-destructive text-white hover:bg-destructive/90",
+        outline: "border bg-background hover:bg-accent",
+        ghost: "hover:bg-accent hover:text-accent-foreground",
+      },
+    },
+    defaultVariants: {
+      variant: "default",
+    },
+  }
+);
+
+// ❌ Bad - manual conditional classes
+className={variant === "default" ? "bg-primary" : variant === "destructive" ? "bg-destructive" : ""}
+```
+
+### Radix Primitive Usage
+
+When wrapping Radix primitives:
+
+```tsx
+"use client";
+
+import { Progress as ProgressPrimitive } from "radix-ui";
+import { cn } from "@/lib/utils";
+
+function Progress({
+  className,
+  value,
+  ...props
+}: React.ComponentProps<typeof ProgressPrimitive.Root>) {
+  return (
+    <ProgressPrimitive.Root
+      data-slot="progress"
+      className={cn("relative h-2 w-full overflow-hidden rounded-full", className)}
+      {...props}
+    >
+      <ProgressPrimitive.Indicator
+        data-slot="progress-indicator"
+        className="h-full bg-primary transition-all"
+        style={{ transform: `translateX(-${100 - (value || 0)}%)` }}
+      />
+    </ProgressPrimitive.Root>
+  );
+}
+```
+
+## Compound Components
+
+For complex components with multiple parts:
+
+```tsx
+// card.tsx
+function Card({ className, ...props }: React.ComponentProps<"div">) {
+  return (
+    <div
+      data-slot="card"
+      className={cn("rounded-xl border bg-card shadow-sm", className)}
+      {...props}
+    />
+  );
+}
+
+function CardHeader({ className, ...props }: React.ComponentProps<"div">) {
+  return (
+    <div
+      data-slot="card-header"
+      className={cn("flex flex-col space-y-1.5 p-6", className)}
+      {...props}
+    />
+  );
+}
+
+// Export all parts
+export { Card, CardHeader, CardContent, CardFooter };
+```
+
+## Accessibility
+
+- Use semantic HTML elements (`button`, `nav`, `header`)
+- Include ARIA attributes when using generic elements
+- Support keyboard navigation
+- Prefer Radix primitives for complex interactions
+
+```tsx
+// ✅ Good - semantic with ARIA
+<div
+  role="progressbar"
+  aria-valuenow={value}
+  aria-valuemin={0}
+  aria-valuemax={max}
+  aria-valuetext={`${percentage}%`}
+/>
+```

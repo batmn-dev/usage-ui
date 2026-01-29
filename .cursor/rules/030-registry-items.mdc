@@ -1,0 +1,163 @@
+---
+description: "Registry item schema compliance for shadcn CLI distribution"
+globs: ["**/registry/**", "**/registry.json"]
+---
+
+# Registry Item Compliance
+
+## registry.json Schema
+
+Every component must have a valid entry in `registry.json`:
+
+```json
+{
+  "$schema": "https://ui.shadcn.com/schema/registry.json",
+  "name": "usage-ui",
+  "homepage": "https://usage-ui.vercel.app",
+  "items": [
+    {
+      "name": "usage-meter",
+      "type": "registry:component",
+      "title": "Usage Meter",
+      "description": "A linear meter for displaying usage/quota with status variants",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "src/components/registry/usage-meter/usage-meter.tsx",
+          "type": "registry:component",
+          "target": "components/ui/usage-meter.tsx"
+        }
+      ]
+    }
+  ]
+}
+```
+
+## Required Fields
+
+| Field | Required | Description |
+|-------|----------|-------------|
+| `name` | ✅ | kebab-case identifier for CLI |
+| `type` | ✅ | Item type (see below) |
+| `title` | ✅ | Human-readable display name |
+| `description` | ✅ | Brief description for AI and humans |
+| `files` | ✅ | Array of file entries |
+| `dependencies` | ⚠️ | npm packages (include if any) |
+| `registryDependencies` | ⚠️ | Other registry items needed |
+
+## Item Types
+
+| Type | Use Case |
+|------|----------|
+| `registry:component` | Single-file components |
+| `registry:ui` | UI primitives |
+| `registry:block` | Multi-file complex components |
+| `registry:lib` | Utility functions |
+| `registry:hook` | React hooks |
+| `registry:theme` | Theme configurations |
+| `registry:style` | CSS/style files |
+| `registry:page` | Page templates |
+
+## File Entry Structure
+
+```json
+{
+  "path": "src/components/registry/usage-meter/usage-meter.tsx",
+  "type": "registry:component",
+  "target": "components/ui/usage-meter.tsx"
+}
+```
+
+- `path`: Source location in YOUR project
+- `type`: File type for categorization
+- `target`: Destination in USER'S project
+
+## Registry Dependencies
+
+### Local shadcn Components
+
+Reference by name only:
+
+```json
+{
+  "registryDependencies": ["button", "card", "badge"]
+}
+```
+
+### Remote Registry Items
+
+Use full URL for external registries:
+
+```json
+{
+  "registryDependencies": [
+    "button",
+    "https://registry-starter.vercel.app/r/theme.json"
+  ]
+}
+```
+
+## npm Dependencies
+
+List packages that need to be installed:
+
+```json
+{
+  "dependencies": ["@radix-ui/react-progress", "recharts"]
+}
+```
+
+## Naming Conventions
+
+| Type | Convention | Example |
+|------|------------|---------|
+| Component files | kebab-case | `usage-meter.tsx` |
+| Component names | PascalCase | `UsageMeter` |
+| Registry names | kebab-case | `"name": "usage-meter"` |
+| CSS variables | kebab-case with `--` | `--meter-warning` |
+
+## Validation Checklist
+
+Before adding to registry.json:
+
+- [ ] Component builds without errors (`pnpm build`)
+- [ ] All imports use `@/` path aliases
+- [ ] All dependencies listed in registry entry
+- [ ] File paths are correct and files exist
+- [ ] TypeScript types are exported
+- [ ] Component works when installed in test project
+
+## Testing Installation
+
+```bash
+# Start dev server
+pnpm dev
+
+# In a separate shadcn project, test installation:
+npx shadcn add http://localhost:3000/r/usage-meter.json
+
+# Verify:
+# 1. File appears in components/ui/
+# 2. No import errors
+# 3. Component renders correctly
+```
+
+## Common Mistakes
+
+```json
+// ❌ Bad - missing registryDependencies
+{
+  "name": "quota-card",
+  "files": [...],
+  "dependencies": []
+  // Missing: card, usage-meter are used but not listed
+}
+
+// ✅ Good - all dependencies listed
+{
+  "name": "quota-card",
+  "registryDependencies": ["card", "usage-meter"],
+  "files": [...]
+}
+```

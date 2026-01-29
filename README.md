@@ -1,146 +1,174 @@
-<a href="https://registry-starter.vercel.app/">
-  <h1 align="center">Registry Starter</h1>
-</a>
+<h1 align="center">Usage UI</h1>
 
 <p align="center">
-    Registry Starter is a free, open-source template built with Next.js and Shadcn/ui Registry to accelerate your AI-Native Design System.
+  A shadcn/ui component registry for building usage meters, quota indicators, and resource consumption visualizations.
 </p>
 
 <p align="center">
-  <a href="#deploy-your-own"><strong>Deploy Your Own</strong></a> ·
-  <a href="#open-in-v0"><strong>Open in v0</strong></a> ·
-  <a href="#theming"><strong>Theming</strong></a> ·
-  <a href="#mcp"><strong>MCP</strong></a> ·
-  <a href="#authentication"><strong>Authentication</strong></a> ·
+  <a href="#installation"><strong>Installation</strong></a> ·
+  <a href="#components"><strong>Components</strong></a> ·
+  <a href="#tech-stack"><strong>Tech Stack</strong></a> ·
   <a href="#running-locally"><strong>Running Locally</strong></a> ·
-  <a href="#file-structure"><strong>File Structure</strong></a> ·
-  <a href="https://ui.shadcn.com/docs/registry"><strong>Read Docs</strong></a>
+  <a href="#project-structure"><strong>Project Structure</strong></a> ·
+  <a href="https://ui.shadcn.com/docs/registry"><strong>Registry Docs</strong></a>
 </p>
+
 <br/>
 
-## Deploy Your Own
+## Overview
 
-You can deploy your own version of the Next.js Registry Starter to Vercel with one click:
+Usage UI is a **shadcn-style component registry** (not an npm package) focused on usage meters and quota visualization. Components are distributed via the shadcn CLI and copied directly into your project—you own and modify the code.
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fvercel%2Fregistry-starter&project-name=my-registry&repository-name=my-registry&demo-title=Registry%20Starter&demo-description=Registry%20Starter%20is%20a%20free%2C%20open-source%20template%20built%20with%20Next.js%20and%20Shadcn%2Fui%20Registry%20to%20accelerate%20your%20AI-Native%20Design%20System.&demo-url=https%3A%2F%2Fregistry-starter.vercel.app&demo-image=%2F%2Fregistry-starter.vercel.app%2Fpreview.png)
+### Key Features
 
-## Open in v0
+- **Usage-focused components**: Linear meters, circular gauges, quota cards, and more
+- **Full shadcn/ui compatibility**: Works with the shadcn CLI and theming system
+- **Dual primitive support**: Both Radix-based (accessible) and lightweight base versions
+- **Modern stack**: Next.js 16+, React 19, TypeScript, Tailwind CSS v4
+- **OKLCH color space**: Modern color system with semantic CSS variables
 
-[![Open in v0](https://registry-starter.vercel.app/open-in-v0.svg)](https://v0.dev/chat/api/open?title=Dashboard+Kit&prompt=These+are+existing+design+system+styles+and+files.+Please+utilize+them+alongside+base+components+to+build.&url=https%3A%2F%2Fregistry-starter.vercel.app%2Fr%2Fdashboard.json)
+## Installation
 
-This registry application also exposes `Open in v0` buttons for each component. Once this application is deployed, the
-`Open in v0` button redirects to [`v0.dev`](https://v0.dev) with a prepopulated prompt and a URL pointing back to this
-registry's `/r/${component_name}.json` endpoint. This endpoint will provide v0 the necessary file information, content,
-and metadata to start your v0 chat with your component, theme, and other related code.
+Install components using the shadcn CLI:
 
-These `/r/${component_name}.json` files are generated using `shadcn/ui` during the `build` and `dev` based on the
-repository's [`registry.json`](./registry.json). For more information, refer to the
-[documentation](https://ui.shadcn.com/docs/registry/registry-json).
+```bash
+# Add a single component
+npx shadcn add https://usage-ui.vercel.app/r/usage-meter.json
 
-## Theming
+# Or configure the registry in your components.json for cleaner installs
+```
 
-To use a custom theme for all the components, all you need to do is modify the CSS tokens in
-[`globals.css`](./src/app/globals.css). More information on these practices can be found
-on [ui.shadcn.com/docs](https://ui.shadcn.com/docs).
+### Registry Setup (Optional)
 
-#### Fonts
+Add to your `components.json` for namespaced installs:
 
-To use custom fonts, you can either use [
-`next/font/google`](https://nextjs.org/docs/pages/getting-started/fonts#google-fonts) or the 
-[`@font-face`](https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face) CSS rule in your 
-[`globals.css`](./src/app/globals.css).
-
-```css
-@font-face {
-    font-family: 'Montserrat';
-    font-style: normal;
-    font-weight: 400;
-    src: url('https://fonts.gstatic.com/s/montserrat/v15/JTUSjIg1_i6t8kCHKm45xW5rygbi49c.woff2') format('woff2'),
-    url('https://fonts.gstatic.com/s/montserrat/v15/JTUSjIg1_i6t8kCHKm45xW5rygbj49c.woff') format('woff');
+```json
+{
+  "registries": {
+    "usage-ui": {
+      "url": "https://usage-ui.vercel.app/r"
+    }
+  }
 }
 ```
 
-If you use `@font-face`, ensure you modify [`globals.css`](src/app/globals.css) tailwind configuration to map 
-your custom font variables to Tailwind fonts. Refer to this
-[Tailwind documentation](https://tailwindcss.com/docs/font-family#customizing-your-theme)
-
-## MCP
-
-To use this registry with MCP, you must also edit [`registry.json`](./registry.json)'s first
-`registry-item` named `theme`. This `registry:theme` item not only contains the tailwind configuration, but it also
-contains your design tokens / CSS variables.
-
-The `shadcn/ui` CLI's MCP command will use the entire `registy.json` file, so it must be put in the `/public` folder
-with all of your `registry:item`s. This will enable you to use your registry in tools like Cursor & Windsurf.
-
-## Authentication
-
-To protect your registry, you must first protect your `registry.json` and all `registry:item` JSON files.  
-This is made possible with an environment variable and basic Next.js Middleware.
-
-1. Create new `REGISTRY_AUTH_TOKEN`. For example, you can generate one:
-
-    ```bash
-    node -e "console.log(crypto.randomBytes(32).toString('base64url'))"
-    ```
-
-2. Add new `middleware.ts` file to protect `/r/:path` routes
-
-    ```ts
-    // src/middleware.ts
-    import { NextResponse } from "next/server";
-    import type { NextRequest } from "next/server";
-    
-    export const config = { matcher: "/r/:path*" };
-    
-    export function middleware(request: NextRequest) {
-      const token = request.nextUrl.searchParams.get("token");
-    
-      if (token == null || token !== process.env.REGISTRY_AUTH_TOKEN) {
-        return new NextResponse("Unauthorized", { status: 401 });
-      }
-    
-      return NextResponse.next();
-    }
-    
-    ```
-
-When using `Open in v0`, the v0 platform will use the `token` search parameter to authenticate with your Registry:
-
-```ts
-const v0Url = `https://v0.dev/chat/api/open?url=https%3A%2F%2Fregistry-starter.vercel.app%2Fr%2Faccordion.json&token=${process.env.REGISTRY_AUTH_TOKEN}`
-```
-
-> [!NOTE]  
-> This method only protects the `/r/:path` routes, this does NOT protect the Registry's UI / component previews. If you
-> choose to protect the UI / component preview, you must ensure the `registry.json` and all `registry:item`s are 
-> publicly accessible or protected using the `token` search parameter. This ensures v0 and other AI Tools have access to
-> use the registry
-    
-
-## Running locally
+Then install with:
 
 ```bash
-pnpm install
-pnpm dev
+npx shadcn add @usage-ui/usage-meter
 ```
 
-Your app should now be running on [localhost:3000](http://localhost:3000).
+## Components
 
-## File Structure
+### Planned Component Library
 
-`app/(registry)` routes contains the registry pages.
+| Category | Components |
+|----------|------------|
+| **Core Meters** | `usage-meter`, `circular-meter`, `segmented-meter`, `stacked-meter`, `gradient-meter`, `stepped-meter` |
+| **Cards** | `quota-card`, `usage-summary`, `storage-card`, `plan-usage-card`, `resource-card` |
+| **Indicators** | `usage-badge`, `threshold-indicator`, `limit-warning`, `overage-indicator` |
+| **Data Viz** | `usage-chart`, `usage-breakdown`, `comparison-bar` |
+| **Utilities** | `usage-tooltip`, `usage-legend` |
 
-`app/demo` routes contains various UI primitives, Components, or Blocks (based on `registry.json`)
+> **Note**: This project is in active development. See [ARCHITECTURE.md](./ARCHITECTURE.md) for the full roadmap.
 
-`@/components` contains all components used in the registry
+## Tech Stack
 
-`@/components/ui` contains all `shadcn/ui` UI Primitives used in the registry
+| Technology | Version | Purpose |
+|------------|---------|---------|
+| Next.js | 16+ | Framework (App Router, RSC) |
+| React | 19 | UI Library |
+| TypeScript | 5.4+ | Type Safety |
+| Tailwind CSS | 4.1+ | Styling (OKLCH colors) |
+| Radix UI | 1.4+ | Accessible Primitives |
+| Recharts | 2.15+ | Charts |
+| Biome | 1.9+ | Linting & Formatting |
+| pnpm | 9+ | Package Manager |
 
-`@/components/registry` contains all components for this Registry Starter application
+## Running Locally
 
-`@/hooks` contains all React hooks
+```bash
+# Install dependencies
+pnpm install
 
-`@/lib` contains all business logic & utils
+# Start development server (builds registry first)
+pnpm dev
 
-`@/layouts` contains all v0 layouts used in `registry.json`
+# Build for production
+pnpm build
+
+# Lint code
+pnpm lint
+```
+
+Your app will be running at [localhost:3000](http://localhost:3000).
+
+## Project Structure
+
+```
+src/
+├── app/
+│   ├── (registry)/       # Registry browser pages
+│   ├── demo/[name]/      # Component demo pages
+│   └── globals.css       # Theme CSS variables (OKLCH)
+├── components/
+│   ├── ui/               # shadcn/ui base components (46+)
+│   └── registry/         # Registry-specific components
+├── layouts/              # Shell, minimal layouts
+├── lib/                  # Utilities (cn, registry helpers)
+└── hooks/                # Custom React hooks
+```
+
+### Key Files
+
+| File | Purpose |
+|------|---------|
+| `registry.json` | Component manifest for shadcn CLI |
+| `components.json` | shadcn CLI configuration |
+| `src/app/globals.css` | Theme CSS variables |
+| `public/r/*.json` | Generated registry files (do not edit) |
+
+## Theming
+
+Customize the theme by modifying CSS variables in [`globals.css`](./src/app/globals.css). This project uses OKLCH color space for modern color management.
+
+```css
+:root {
+  --primary: oklch(0.52 0.13 144.17);
+  --meter-success: oklch(0.723 0.191 142.5);
+  --meter-warning: oklch(0.795 0.184 86.047);
+  --meter-danger: oklch(0.637 0.237 25.331);
+}
+```
+
+## Open in v0
+
+Components support the "Open in v0" workflow for AI-assisted development:
+
+[![Open in v0](https://registry-starter.vercel.app/open-in-v0.svg)](https://v0.dev/chat/api/open?title=Usage+UI&prompt=These+are+existing+design+system+styles+and+files.+Please+utilize+them+alongside+base+components+to+build.&url=https%3A%2F%2Fusage-ui.vercel.app%2Fr%2Ftheme.json)
+
+## MCP Support
+
+This registry works with AI coding tools (Cursor, Windsurf) via MCP. The `registry.json` includes theme and component definitions that AI tools can use to understand your design system.
+
+## Contributing
+
+1. Clone the repository
+2. Install dependencies: `pnpm install`
+3. Create components in `src/components/registry/`
+4. Add entries to `registry.json`
+5. Test locally: `pnpm dev`
+6. Submit a PR
+
+See [ARCHITECTURE.md](./ARCHITECTURE.md) for detailed development guidelines.
+
+## Documentation
+
+- [ARCHITECTURE.md](./ARCHITECTURE.md) - Full architecture guide and component roadmap
+- [CLAUDE.md](./CLAUDE.md) - AI agent context file
+- [AGENTS.md](./AGENTS.md) - Quick reference for AI coding assistants
+- [shadcn/ui Registry Docs](https://ui.shadcn.com/docs/registry) - Official registry documentation
+
+## License
+
+MIT

@@ -1,0 +1,67 @@
+# Registry Starter
+
+> Registry Starter is a custom shadcn/ui component registry for building branded React applications. It provides themed UI components, blocks, and layouts with a nature theme using oklch colors. Built with Next.js 16, React 19, TypeScript, Tailwind CSS v4, and Radix UI primitives. Components are distributed via the shadcn CLI and copied into user projects for full code ownership.
+
+## Theme
+
+- [Nature Theme](https://registry-starter.vercel.app/r/theme.json): Green and brown color palette using oklch color space with shadcn/ui CSS variable names. Includes light and dark mode support.
+
+## Blocks
+
+- [Blank](https://registry-starter.vercel.app/r/blank.json): A minimal starter template with all brand components and code. Uses minimal layout.
+- [Dashboard](https://registry-starter.vercel.app/r/dashboard.json): A dashboard application layout with brand-themed sidebar and header components. Uses shell layout with collapsible sidebar.
+- [Store](https://registry-starter.vercel.app/r/store.json): An e-commerce store layout with product grid and minimal layout.
+
+## Brand Components
+
+- [Brand Header](https://registry-starter.vercel.app/r/brand-header.json): A styled, reusable header with navigation, search input, avatar, and sidebar trigger. Includes shell layout.
+- [Brand Sidebar](https://registry-starter.vercel.app/r/brand-sidebar.json): A styled, collapsible sidebar navigation with badge support and icon menu items.
+- [Login](https://registry-starter.vercel.app/r/login.json): Username and password login section with customer quote and branding.
+- [Logo](https://registry-starter.vercel.app/r/logo.json): A styled, reusable brand logo component.
+- [Hero](https://registry-starter.vercel.app/r/hero.json): Attention-grabbing hero section for landing pages with badge, heading, description, and CTA buttons.
+- [Promo](https://registry-starter.vercel.app/r/promo.json): Promotional banner section to display current deals and offers.
+- [Product Grid](https://registry-starter.vercel.app/r/product-grid.json): Product grid displaying all products with API to fetch data. Includes products data utility.
+
+## Form & Input Components
+
+- [Button](https://registry-starter.vercel.app/r/button.json): Allows users to take actions with a single click or tap.
+- [Checkbox](https://registry-starter.vercel.app/r/checkbox.json): Allows users to select multiple items from a list of options.
+- [Input](https://registry-starter.vercel.app/r/input.json): Displays a form input field or a component that looks like an input field.
+- [Select](https://registry-starter.vercel.app/r/select.json): Displays a list of options for the user to pick from, triggered by a button.
+- [Slider](https://registry-starter.vercel.app/r/slider.json): An input where the user selects a value from within a given range.
+- [Switch](https://registry-starter.vercel.app/r/switch.json): A control that allows the user to toggle between checked and not checked.
+- [Calendar](https://registry-starter.vercel.app/r/calendar.json): A date field component that allows users to enter and edit dates.
+- [Date Picker](https://registry-starter.vercel.app/r/date-picker.json): Date picker component combining input and calendar for date selection.
+
+## Layout & Navigation Components
+
+- [Accordion](https://registry-starter.vercel.app/r/accordion.json): A vertically stacked set of interactive headings that each reveal a section of content.
+- [Breadcrumb](https://registry-starter.vercel.app/r/breadcrumb.json): Displays the path to the current resource using a hierarchy of links.
+- [Menu Bar](https://registry-starter.vercel.app/r/menu-bar.json): A visually persistent menu common in desktop applications that provides quick access to a consistent set of commands.
+- [Tabs](https://registry-starter.vercel.app/r/tabs.json): A set of layered sections of content, known as tab panels, displayed one at a time.
+- [Separator](https://registry-starter.vercel.app/r/separator.json): Visually or semantically separates content.
+
+## Overlays & Menus
+
+- [Dialog](https://registry-starter.vercel.app/r/dialog.json): A modal dialog that interrupts the user with important content and expects a response.
+- [Dropdown Menu](https://registry-starter.vercel.app/r/dropdown-menu.json): Displays a menu to the user triggered by a button.
+- [Tooltip](https://registry-starter.vercel.app/r/tooltip.json): A popup that displays information related to an element on hover or keyboard focus.
+
+## Feedback & Status Components
+
+- [Alert](https://registry-starter.vercel.app/r/alert.json): Displays a callout for user attention.
+- [Badge](https://registry-starter.vercel.app/r/badge.json): Displays a small count or status indicator.
+- [Skeleton](https://registry-starter.vercel.app/r/skeleton.json): Use to show a placeholder while content is loading.
+- [Sonner](https://registry-starter.vercel.app/r/sonner.json): An opinionated toast notification component for React.
+
+## Display & Data Components
+
+- [Avatar](https://registry-starter.vercel.app/r/avatar.json): An image element with a fallback for representing the user.
+- [Card](https://registry-starter.vercel.app/r/card.json): Containers for displaying content and actions about a single subject.
+- [Table](https://registry-starter.vercel.app/r/table.json): A responsive table component for displaying tabular data.
+- [Chart](https://registry-starter.vercel.app/r/chart.json): Beautiful charts built using Recharts. Copy and paste into your apps.
+
+## Optional
+
+- [Data Table](https://registry-starter.vercel.app/r/data-table.json): Powerful table and datagrids built using TanStack Table with sorting, filtering, and pagination.
+- [Toggle Group](https://registry-starter.vercel.app/r/toggle-group.json): A group of toggle buttons for selecting one or multiple options.

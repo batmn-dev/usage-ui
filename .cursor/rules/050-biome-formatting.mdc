@@ -1,0 +1,147 @@
+---
+description: "Biome linting and formatting configuration reference"
+---
+
+# Biome Formatting Reference
+
+This project uses Biome for linting and formatting (NOT ESLint/Prettier).
+
+## Configuration Summary
+
+From `biome.json`:
+
+| Setting | Value |
+|---------|-------|
+| Indent style | Spaces |
+| Indent width | 2 |
+| Semicolons | Always |
+| Trailing commas | All |
+| JSX quotes | Double |
+| Arrow parentheses | Always |
+| Bracket spacing | True |
+
+## Code Examples
+
+### Semicolons: Always
+
+```tsx
+// ✅ Good
+const value = 42;
+export { Component };
+
+// ❌ Bad
+const value = 42
+export { Component }
+```
+
+### Trailing Commas: All
+
+```tsx
+// ✅ Good
+const config = {
+  name: "usage-ui",
+  version: "1.0.0",
+};
+
+const items = [
+  "first",
+  "second",
+  "third",
+];
+
+// ❌ Bad
+const config = {
+  name: "usage-ui",
+  version: "1.0.0"
+};
+```
+
+### Arrow Parentheses: Always
+
+```tsx
+// ✅ Good
+const double = (x) => x * 2;
+const add = (a, b) => a + b;
+
+// ❌ Bad
+const double = x => x * 2;
+```
+
+### JSX Quotes: Double
+
+```tsx
+// ✅ Good
+<Button variant="default" size="lg">Click</Button>
+
+// ❌ Bad
+<Button variant='default' size='lg'>Click</Button>
+```
+
+### Indentation: 2 Spaces
+
+```tsx
+// ✅ Good (2 spaces)
+function Component() {
+  return (
+    <div>
+      <span>Content</span>
+    </div>
+  );
+}
+
+// ❌ Bad (tabs or 4 spaces)
+function Component() {
+    return (
+        <div>
+            <span>Content</span>
+        </div>
+    );
+}
+```
+
+## Import Organization
+
+Biome automatically organizes imports. Let it handle sorting.
+
+```tsx
+// Biome will organize like this:
+import * as React from "react";
+import { cva } from "class-variance-authority";
+
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+
+import { Logo } from "./logo";
+```
+
+## Ignored Paths
+
+From `biome.json`, these paths are ignored:
+
+- `node_modules`
+- `.next`
+- `.vercel`
+- `public/r` (generated registry JSON)
+- `components/ui` (base shadcn components)
+
+## Linter Rules
+
+- Recommended rules: Enabled
+- `useSortedClasses`: Warn (Tailwind class sorting)
+
+## Commands
+
+```bash
+# Check for issues
+pnpm lint
+
+# Check and auto-fix
+pnpm check
+
+# Format files
+pnpm biome format --write .
+```
+
+## VS Code Integration
+
+If using Biome VS Code extension, it formats on save. Don't also configure Prettier.
