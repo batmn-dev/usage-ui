@@ -55,7 +55,7 @@ for skill_path in "$AGENTS_SKILLS"/*/; do
       # Symlink exists, check if it points to the right place
       current_target=$(readlink "$link_path")
       if [[ "$current_target" == "$target" ]]; then
-        ((skipped++))
+        skipped=$((skipped + 1))
         continue
       fi
       # Wrong target, remove and recreate
@@ -68,7 +68,7 @@ for skill_path in "$AGENTS_SKILLS"/*/; do
     
     ln -s "$target" "$link_path"
     echo "✅ Created: $link_path -> $target"
-    ((created++))
+    created=$((created + 1))
   done
 done
 
@@ -79,7 +79,7 @@ for tool_dir in "${TOOL_DIRS[@]}"; do
     if [[ ! -e "$link" ]]; then
       echo "🗑️  Removed broken: $link"
       rm "$link"
-      ((removed++))
+      removed=$((removed + 1))
     fi
   done
 done

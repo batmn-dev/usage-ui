@@ -30,6 +30,12 @@ warn() {
   WARNINGS=$((WARNINGS + 1))
 }
 
+# Extract package name from package.json
+# Usage: get_package_name "path/to/package.json"
+get_package_name() {
+  grep '"name"' "$1" | head -1 | sed 's/.*"\(.*\)".*/\1/' | sed 's/.*: "//' | sed 's/".*//'
+}
+
 # ============================================================================
 # 1. Directory Structure
 # ============================================================================
@@ -92,8 +98,8 @@ echo ""
 echo "🏷️  Checking package names..."
 
 if [ -f "apps/www/package.json" ]; then
-  WWW_NAME=$(grep '"name"' apps/www/package.json | head -1 | sed 's/.*"\(.*\)".*/\1/' | sed 's/.*: "//' | sed 's/".*//')
-  if [[ "$WWW_NAME" == *"@usage-ui/www"* ]]; then
+  WWW_NAME=$(get_package_name "apps/www/package.json")
+  if [[ "$WWW_NAME" == "@usage-ui/www" ]]; then
     pass "apps/www name is @usage-ui/www"
   else
     fail "apps/www name should be @usage-ui/www (got: $WWW_NAME)"
@@ -101,8 +107,8 @@ if [ -f "apps/www/package.json" ]; then
 fi
 
 if [ -f "packages/ui/package.json" ]; then
-  UI_NAME=$(grep '"name"' packages/ui/package.json | head -1 | sed 's/.*"\(.*\)".*/\1/' | sed 's/.*: "//' | sed 's/".*//')
-  if [[ "$UI_NAME" == *"@usage-ui/ui"* ]]; then
+  UI_NAME=$(get_package_name "packages/ui/package.json")
+  if [[ "$UI_NAME" == "@usage-ui/ui" ]]; then
     pass "packages/ui name is @usage-ui/ui"
   else
     fail "packages/ui name should be @usage-ui/ui (got: $UI_NAME)"

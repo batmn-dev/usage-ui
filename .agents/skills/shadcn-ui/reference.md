@@ -441,7 +441,7 @@ const [apiCalls, setApiCalls] = useState(0)
 useEffect(() => {
 if (debouncedSearch) {
 setApiCalls(prev => prev + 1)
-fetch(`/api/search?q=${debouncedSearch}`)
+fetch(`/api/search?q=${encodeURIComponent(debouncedSearch)}`)
 .then(res => res.json())
 .then(setResults)
 }

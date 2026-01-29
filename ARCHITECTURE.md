@@ -1045,7 +1045,7 @@ The current Vercel Registry Starter is a single app. **Migration to monorepo is 
 ### Understanding the Two Approaches
 
 **Radix Version** (Full Accessibility)
-- Uses `@radix-ui/react-progress` or other Radix primitives
+- Uses the unified `radix-ui` package (Progress, Dialog, etc.)
 - Full keyboard navigation, ARIA attributes, focus management
 - Slightly larger bundle size
 - Required for complex interactive components
@@ -1061,11 +1061,11 @@ The current Vercel Registry Starter is a single app. **Migration to monorepo is 
 The project uses the **unified `radix-ui` package** (v1.4.3), which includes all primitives:
 
 ```tsx
-// Import from the unified package
-import { Progress } from "radix-ui"
+// Import from the unified package (ALWAYS use this pattern)
+import { Progress as ProgressPrimitive } from "radix-ui"
 
-// Or import specific primitive (both work)
-import * as ProgressPrimitive from "@radix-ui/react-progress"
+// ❌ DON'T use individual packages
+// import * as ProgressPrimitive from "@radix-ui/react-progress"
 ```
 
 ### Implementation Pattern
@@ -1093,7 +1093,7 @@ src/components/registry/
 "use client"
 
 import * as React from "react"
-import * as ProgressPrimitive from "@radix-ui/react-progress"
+import { Progress as ProgressPrimitive } from "radix-ui"
 import { cn } from "@/lib/utils"
 
 interface UsageMeterProps
@@ -1440,9 +1440,9 @@ usage-ui/
 
 | Component | Hard Dependencies | Soft Dependencies |
 |-----------|-------------------|-------------------|
-| `usage-meter` | `@radix-ui/react-progress`, `cn` | None |
+| `usage-meter` | `radix-ui` (Progress), `cn` | None |
 | `usage-meter-base` | `cn` | None |
-| `circular-meter` | `@radix-ui/react-progress`, `cn` | None |
+| `circular-meter` | `radix-ui` (Progress), `cn` | None |
 | `segmented-meter` | `usage-meter` | None |
 | `stacked-meter` | `usage-meter` | None |
 | `quota-card` | `card` (shadcn), `usage-meter` | None |
@@ -1472,7 +1472,7 @@ src/components/registry/
 ```tsx
 // src/components/registry/usage-meter/usage-meter.tsx
 import * as React from "react"
-import * as ProgressPrimitive from "@radix-ui/react-progress"
+import { Progress as ProgressPrimitive } from "radix-ui"
 import { cn } from "@/lib/utils"
 
 interface UsageMeterProps {
@@ -1752,7 +1752,7 @@ const sizes = {
       "type": "registry:component",
       "title": "Usage Meter",
       "description": "A linear meter for displaying usage/quota with Radix primitives",
-      "dependencies": ["@radix-ui/react-progress"],
+      "dependencies": ["radix-ui"],
       "registryDependencies": [],
       "files": [
         {
@@ -1969,7 +1969,7 @@ import { cn } from "@/lib/utils"
 ```json
 {
   "registryDependencies": ["card", "usage-meter"],
-  "dependencies": ["@radix-ui/react-progress"]
+  "dependencies": ["radix-ui"]
 }
 ```
 

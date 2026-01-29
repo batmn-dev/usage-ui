@@ -1,5 +1,11 @@
 ---
-paths: "**/*.css", "**/*.tsx", "**/*.jsx", tailwind.config.*, components.json, postcss.config.*
+paths:
+  - "**/*.css"
+  - "**/*.tsx"
+  - "**/*.jsx"
+  - "tailwind.config.*"
+  - "components.json"
+  - "postcss.config.*"
 ---
 
 # Tailwind v4 + shadcn/ui Corrections

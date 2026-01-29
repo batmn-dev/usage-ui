@@ -565,7 +565,7 @@ This example demonstrates importing CSS files using the `url()` syntax, includin
  "name": "font-import",
  "type": "registry:item",
  "css": {
- "@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap")": {},
+  "@import url(\"https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap\")": {},
  "@import url('./local-styles.css')": {}
  }
 }
@@ -1274,8 +1274,8 @@ This configuration shows how to use CSS imports with media queries, allowing for
  "name": "responsive-import",
  "type": "registry:item",
  "css": {
- "@import "print-styles.css" print": {},
- "@import url("mobile.css") screen and (max-width: 768px)": {}
+  "@import \"print-styles.css\" print": {},
+  "@import url(\"mobile.css\") screen and (max-width: 768px)": {}
  }
 }
 ```

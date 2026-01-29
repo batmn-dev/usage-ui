@@ -11,8 +11,54 @@ Examples:
     init_skill.py custom-skill --path /custom/location
 """
 
+import re
 import sys
 from pathlib import Path
+
+# Validation constants
+MAX_SKILL_NAME_LENGTH = 40
+SKILL_NAME_PATTERN = re.compile(r'^[a-z][a-z0-9]*(-[a-z0-9]+)*$')
+
+
+def validate_skill_name(skill_name: str) -> tuple[bool, str]:
+    """
+    Validate that the skill name meets all requirements.
+
+    Requirements:
+    - Hyphen-case identifier (e.g., 'data-analyzer')
+    - Lowercase letters, digits, and hyphens only
+    - Must start with a letter
+    - No consecutive hyphens, no leading/trailing hyphens
+    - Max 40 characters
+    - No path traversal sequences
+
+    Args:
+        skill_name: The skill name to validate
+
+    Returns:
+        Tuple of (is_valid, error_message)
+    """
+    # Check for empty name
+    if not skill_name:
+        return False, "Skill name cannot be empty"
+
+    # Check for path traversal attempts
+    if '..' in skill_name or '/' in skill_name or '\\' in skill_name:
+        return False, "Skill name cannot contain path separators or '..' sequences"
+
+    # Check length
+    if len(skill_name) > MAX_SKILL_NAME_LENGTH:
+        return False, f"Skill name exceeds maximum length of {MAX_SKILL_NAME_LENGTH} characters"
+
+    # Check pattern (lowercase letters, digits, hyphens in hyphen-case format)
+    if not SKILL_NAME_PATTERN.match(skill_name):
+        return False, (
+            "Skill name must be in hyphen-case format: "
+            "start with a lowercase letter, contain only lowercase letters, digits, and hyphens, "
+            "with no consecutive hyphens or trailing hyphens (e.g., 'my-skill', 'data-analyzer-2')"
+        )
+
+    return True, ""
 
 
 SKILL_TEMPLATE = """---
@@ -286,6 +332,12 @@ def main():
 
     skill_name = sys.argv[1]
     path = sys.argv[3]
+
+    # Validate skill name before proceeding
+    is_valid, error_message = validate_skill_name(skill_name)
+    if not is_valid:
+        print(f"❌ Invalid skill name '{skill_name}': {error_message}")
+        sys.exit(1)
 
     print(f"🚀 Initializing skill: {skill_name}")
     print(f"   Location: {path}")

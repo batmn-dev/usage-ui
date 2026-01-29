@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "next build",
+    "build": "pnpm dlx shadcn@latest build ./src/registry.json && next build",
+    "build:registry": "pnpm dlx shadcn@latest build ./src/registry.json",
     "start": "next start",
     "lint": "biome check src/",
     "typecheck": "tsc --noEmit"

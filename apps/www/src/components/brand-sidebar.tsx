@@ -13,7 +13,7 @@ import {
   Table,
 } from "lucide-react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 import type * as React from "react";
 
 import { Button } from "@/components/ui/button";
@@ -52,9 +52,22 @@ export function BrandSidebar({
   onToggle,
   className,
 }: SidebarProps) {
-  const pathname = usePathname();
+  const [hash, setHash] = useState("");
   const { state } = useSidebar();
   const isCollapsed = state === "collapsed";
+
+  useEffect(() => {
+    // Set initial hash
+    setHash(window.location.hash);
+
+    // Listen for hash changes
+    const handleHashChange = () => {
+      setHash(window.location.hash);
+    };
+
+    window.addEventListener("hashchange", handleHashChange);
+    return () => window.removeEventListener("hashchange", handleHashChange);
+  }, []);
 
   const mainNavItems: NavItem[] = [
     {
@@ -134,8 +147,8 @@ export function BrandSidebar({
                   <SidebarMenuButton
                     asChild
                     isActive={
-                      pathname === item.href ||
-                      (pathname === "" && item.href === "/")
+                      hash === item.href ||
+                      (item.href === "#" && (hash === "" || hash === "#"))
                     }
                     tooltip={item.title}
                   >
@@ -163,7 +176,7 @@ export function BrandSidebar({
                 <SidebarMenuItem key={item.href}>
                   <SidebarMenuButton
                     asChild
-                    isActive={pathname === item.href}
+                    isActive={hash === item.href}
                     tooltip={item.title}
                   >
                     <Link href={item.href}>
