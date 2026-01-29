@@ -216,6 +216,64 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
 }
 ```
 
+### 1.6 Create Props Extraction Utility
+
+**Create:** `apps/www/src/lib/extract-props.ts`
+
+This utility extracts TypeScript interface definitions and JSDoc comments from component files for auto-generated API documentation.
+
+```typescript
+import fs from "node:fs"
+import path from "node:path"
+import { cache } from "react"
+
+export interface PropInfo {
+  prop: string
+  type: string
+  default?: string
+  required: boolean
+  description?: string
+}
+
+export interface ComponentDoc {
+  displayName: string
+  description?: string
+  props: PropInfo[]
+}
+
+/**
+ * Extract props for a registry component by name.
+ */
+export const getComponentProps = cache((componentName: string): ComponentDoc[] => {
+  // Implementation reads from packages/ui/registry.json
+  // then parses the TypeScript file for interface definitions
+  // See full implementation in apps/www/src/lib/extract-props.ts
+})
+
+/**
+ * Convert PropInfo to ApiTable-compatible format.
+ */
+export function formatPropsForApiTable(props: PropInfo[]) {
+  return props.map((p) => ({
+    prop: p.prop,
+    type: p.type,
+    default: p.required ? "Required" : p.default || "—",
+    description: p.description,
+  }))
+}
+```
+
+**JSDoc Convention:** Document component props with JSDoc comments:
+
+```typescript
+interface UsageMeterProps {
+  /** Current value (required) */
+  value: number
+  /** Maximum value (default: 100) */
+  max?: number
+}
+```
+
 ### Validation Steps
 
 ```bash

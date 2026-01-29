@@ -185,22 +185,186 @@ These add build complexity but ensure docs stay in sync with code.
 
 ---
 
+## Decision 5: Theme Synchronization for Direct Rendering
+
+### Selected: CSS Variable Inheritance (No Additional Providers Needed)
+
+**Approach:**
+- Direct rendering of UI components inherits theme automatically via CSS variables
+- No additional context providers or wrapper components required
+- Dark mode toggle updates `:root` CSS variables, which automatically propagate to all descendants
+
+```tsx
+// Direct rendering - theme inherits naturally
+<div className="flex min-h-[350px] items-center justify-center rounded-md border p-8">
+  <UsageMeter value={75} variant="warning" />
+</div>
+```
+
+### Rationale
+
+| Consideration | Analysis |
+|---------------|----------|
+| **CSS variable cascade** | Variables on `:root` cascade to all descendants automatically |
+| **shadcn theme toggle** | Updates CSS variables on document element, affecting all components |
+| **prompt-kit pattern** | Uses direct rendering with CSS variable inheritance |
+| **No extra bundle** | Avoids React context overhead |
+| **Dark mode** | `dark:` Tailwind utilities + CSS variables work seamlessly |
+
+### How It Works
+
+1. **Theme CSS Variables** defined in `globals.css`:
+```css
+:root {
+  --background: oklch(1 0 0);
+  --primary: oklch(0.205 0 0);
+  --meter-success: oklch(0.723 0.191 142.5);
+}
+.dark {
+  --background: oklch(0.145 0 0);
+  --primary: oklch(0.922 0 0);
+}
+```
+
+2. **Components use variables**:
+```tsx
+<div className="bg-background text-foreground">
+  <div className="bg-[--meter-success]" />
+</div>
+```
+
+3. **Theme toggle** updates document class:
+```tsx
+// next-themes handles this automatically
+document.documentElement.classList.toggle("dark");
+```
+
+### When Iframe Isolation is Needed
+
+For **blocks** (full-page layouts), use iframe rendering:
+- Blocks may have their own layout/styles that conflict with docs page
+- Iframe provides complete CSS isolation
+- Demo pages (`/demo/[name]`) load full theme context
+
+```tsx
+// For registry:block type
+<iframe src={`/demo/${name}`} className="h-[800px] w-full" />
+```
+
+### No Provider Wrappers Needed
+
+Unlike some theming solutions that require context providers, shadcn/ui's CSS variable approach means:
+- ✅ No `<ThemeProvider>` wrapper around previews
+- ✅ No `useTheme()` hook needed in preview components
+- ✅ Components are portable - they just read CSS variables
+
+---
+
+## Decision 6: Auto-Generated API Documentation
+
+### Selected: Build-Time TypeScript Extraction with react-docgen-typescript
+
+**Approach:**
+- Use `react-docgen-typescript` to extract props from TypeScript interfaces at build time
+- Generate structured JSON data for `ApiTable` component consumption
+- Supplement with JSDoc comments for descriptions
+- Run as part of the build pipeline, not at runtime
+
+### Implementation Strategy
+
+**Phase 1: Infrastructure (Immediate)**
+
+1. Install dependency:
+```bash
+pnpm add -D react-docgen-typescript --filter=@usage-ui/www
+```
+
+2. Create extraction utility at `apps/www/src/lib/extract-props.ts`
+
+3. Extract at build time using `generateStaticParams` or a prebuild script
+
+**Phase 2: Integration**
+
+```tsx
+// In docs/[slug]/page.tsx
+import { extractComponentProps } from "@/lib/extract-props"
+
+const props = await extractComponentProps("usage-meter")
+// Returns: [{ prop: "value", type: "number", required: true, description: "Current value" }, ...]
+
+<ApiTable data={props} />
+```
+
+### Rationale
+
+| Consideration | Analysis |
+|---------------|----------|
+| **Source of truth** | TypeScript interfaces are the canonical API definition |
+| **Maintenance** | Docs auto-update when interfaces change |
+| **JSDoc support** | Extracts `/** comments */` as descriptions |
+| **Industry precedent** | Used by Storybook, Docz, React Styleguidist |
+| **shadcn approach** | Manual tables, but their component count justifies it |
+| **Our scale** | Automation justified even with small component count |
+
+### Props Extraction Output Format
+
+```typescript
+interface PropInfo {
+  prop: string        // "value"
+  type: string        // "number"
+  default?: string    // "100"
+  required: boolean   // true
+  description?: string // "Current usage value"
+}
+```
+
+### JSDoc Convention for Components
+
+Document props with JSDoc comments:
+
+```typescript
+interface UsageMeterProps {
+  /** Current value (required) */
+  value: number
+  /** Maximum value (default: 100) */
+  max?: number
+  /** Visual variant */
+  variant?: "default" | "success" | "warning" | "danger"
+}
+```
+
+### Trade-offs vs Manual Tables
+
+| Manual Tables | Auto-Generated |
+|---------------|----------------|
+| ✅ Full prose control | ✅ Always in sync with code |
+| ❌ Can drift from code | ✅ Extracts JSDoc descriptions |
+| ✅ No build dependency | ❌ Adds build-time processing |
+| ❌ Duplicate maintenance | ✅ Single source of truth |
+
+**Decision**: Auto-generation is worth the build complexity for consistency and reduced maintenance.
+
+---
+
 ## Implementation Plan
 
 ### Phase 1: Infrastructure
 1. Add Shiki for syntax highlighting
 2. Create code extraction utility (`lib/code.ts`)
 3. Set up MDX loader and components
+4. **Add `extract-props.ts` for auto-generated API docs**
 
 ### Phase 2: Core Components
-4. Build `ComponentCodePreview` (Preview/Code tabs)
-5. Build `ApiTable` component
-6. Build `CodeRenderer` (Shiki wrapper)
+5. Build `ComponentCodePreview` (Preview/Code tabs)
+6. Build `ApiTable` component
+7. Build `CodeRenderer` (Shiki wrapper)
 
 ### Phase 3: Documentation
-7. Create MDX template for component docs
-8. Migrate existing component pages to MDX
-9. Add Previous/Next navigation
+8. Create `/docs/[slug]` route with new template
+9. Create documentation pages for components
+10. Add Previous/Next navigation
+11. **Update sidebar links to use `/docs/` routes**
+12. **Remove old `/registry/[name]` route**
 
 ---
 

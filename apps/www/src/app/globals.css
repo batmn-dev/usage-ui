@@ -171,3 +171,58 @@
     -moz-osx-font-smoothing: grayscale;
   }
 }
+
+/* Documentation Prose Typography */
+@layer components {
+  .prose-docs {
+    /* Headings */
+    & h1 {
+      @apply scroll-m-20 text-3xl font-semibold tracking-tight;
+    }
+
+    & h2 {
+      @apply mt-12 scroll-m-20 border-b pb-2 text-xl font-medium tracking-tight first:mt-0;
+    }
+
+    & h3 {
+      @apply mt-8 scroll-m-20 text-lg font-medium tracking-tight;
+    }
+
+    /* Content */
+    & p {
+      @apply leading-7 [&:not(:first-child)]:mt-6;
+    }
+
+    & strong {
+      @apply font-medium;
+    }
+
+    & code:not(pre code) {
+      @apply rounded bg-muted px-1 py-0.5 text-sm before:content-none after:content-none;
+    }
+
+    /* Tables */
+    & table {
+      @apply block overflow-y-auto;
+    }
+
+    /* Images */
+    & img {
+      @apply m-0 rounded-md;
+    }
+
+    /* Lists */
+    & ul {
+      @apply my-6 ml-6 list-disc [&>li]:mt-2;
+    }
+
+    & ol {
+      @apply my-6 ml-6 list-decimal [&>li]:mt-2;
+    }
+
+    /* Links */
+    & a {
+      @apply font-medium text-foreground underline underline-offset-4;
+    }
+  }
+}
