@@ -1,0 +1,182 @@
+---
+description: "Tailwind CSS v4 and styling conventions with OKLCH colors"
+globs: ["**/*.tsx", "**/*.css"]
+---
+
+# Styling & Tailwind Conventions
+
+## CSS Variables (OKLCH Color Space)
+
+This project uses OKLCH colors for better perceptual uniformity:
+
+```css
+:root {
+  --primary: oklch(0.52 0.13 144.17);
+  --primary-foreground: oklch(1.0 0 0);
+  --secondary: oklch(0.96 0.02 147.64);
+  /* ... */
+}
+```
+
+### Never Hardcode Colors
+
+```tsx
+// ✅ Good - uses CSS variables via Tailwind
+className="bg-primary text-primary-foreground"
+className="bg-muted text-muted-foreground"
+className="border-border"
+
+// ❌ Bad - hardcoded colors
+className="bg-blue-500 text-white"
+className="bg-[#3b82f6]"
+```
+
+## Available Color Variables
+
+| Variable | Light Mode | Usage |
+|----------|------------|-------|
+| `--background` | Light beige | Page background |
+| `--foreground` | Dark brown | Primary text |
+| `--primary` | Green | Primary actions, brand |
+| `--secondary` | Light green | Secondary elements |
+| `--muted` | Tan | Muted backgrounds |
+| `--accent` | Light green | Hover states |
+| `--destructive` | Red | Error states |
+| `--border` | Light tan | Borders |
+| `--card` | Light beige | Card backgrounds |
+
+## Component Styling Patterns
+
+### Base + Variant + User Override
+
+```tsx
+className={cn(
+  // 1. Base styles (always applied)
+  "inline-flex items-center justify-center rounded-md",
+  // 2. Variant styles (conditional)
+  variant === "default" && "bg-primary text-primary-foreground",
+  variant === "outline" && "border bg-background",
+  // 3. Size styles (conditional)
+  size === "sm" && "h-8 px-3 text-sm",
+  size === "lg" && "h-12 px-6",
+  // 4. User override (always last)
+  className
+)}
+```
+
+### Status Colors for Meters
+
+Define custom variables for meter states:
+
+```css
+:root {
+  --meter-success: oklch(0.723 0.191 142.5);
+  --meter-warning: oklch(0.795 0.184 86.047);
+  --meter-danger: oklch(0.637 0.237 25.331);
+  --meter-track: oklch(0.928 0.006 264.5);
+}
+```
+
+Use in components:
+
+```tsx
+variant === "success" && "bg-[--meter-success]",
+variant === "warning" && "bg-[--meter-warning]",
+variant === "danger" && "bg-[--meter-danger]",
+```
+
+## Tailwind v4 Conventions
+
+### @theme Inline Block
+
+Theme variables are mapped in `globals.css`:
+
+```css
+@theme inline {
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --radius-lg: var(--radius);
+}
+```
+
+### Dark Mode
+
+Uses class-based dark mode with `@custom-variant`:
+
+```css
+@custom-variant dark (&:is(.dark *));
+
+.dark {
+  --background: oklch(0.15 0.01 74.42);
+  --foreground: oklch(0.95 0.02 80.72);
+}
+```
+
+Components automatically adapt:
+
+```tsx
+// Works in both light and dark mode
+className="bg-background text-foreground"
+```
+
+## Responsive Design
+
+Use Tailwind breakpoint prefixes:
+
+```tsx
+// ✅ Mobile-first responsive
+className="hidden md:flex"           // Hidden on mobile, flex on md+
+className="w-full md:w-64"           // Full width mobile, 64 on md+
+className="grid-cols-1 lg:grid-cols-3"  // 1 col mobile, 3 on lg+
+```
+
+## Common Utility Patterns
+
+### Flexbox Centering
+
+```tsx
+className="flex items-center justify-center"
+className="flex items-center gap-2"
+```
+
+### Spacing
+
+```tsx
+className="space-y-4"    // Vertical spacing between children
+className="gap-4"        // Grid/flex gap
+className="p-6"          // Padding
+className="px-4 py-2"    // Horizontal/vertical padding
+```
+
+### Borders & Radius
+
+```tsx
+className="rounded-md"                  // Uses --radius
+className="rounded-full"                // Pill shape
+className="border border-border"        // Standard border
+className="border-b border-border"      // Bottom border only
+```
+
+### Shadows
+
+```tsx
+className="shadow-sm"   // Subtle shadow
+className="shadow-xs"   // Extra small
+```
+
+## Animations
+
+Use `tw-animate-css` utilities:
+
+```tsx
+className="transition-all"
+className="transition-colors duration-200"
+className="animate-in fade-in"
+```
+
+## Do NOT
+
+- ❌ Use arbitrary color values `bg-[#123456]`
+- ❌ Override shadcn component internals with `!important`
+- ❌ Use inline styles for colors
+- ❌ Mix color systems (hex with oklch)

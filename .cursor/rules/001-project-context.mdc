@@ -1,0 +1,117 @@
+---
+description: "Essential project context for Usage UI - a shadcn/ui component registry monorepo for usage meters and quota visualization"
+alwaysApply: true
+---
+
+# Usage UI - Project Context
+
+> A shadcn/ui component registry for building usage meters, quota indicators, and resource consumption visualizations. **Structured as a monorepo.**
+
+## Monorepo Structure
+
+```
+usage-ui/
+├── apps/
+│   └── www/                    # Documentation + demo site (@usage-ui/www)
+│       ├── src/app/            # Next.js pages
+│       ├── src/components/     # Site-specific components
+│       └── public/r/           # Generated registry JSON (DO NOT EDIT)
+│
+├── packages/
+│   └── ui/                     # Component registry (@usage-ui/ui)
+│       ├── src/components/
+│       │   ├── ui/             # Base shadcn components (DO NOT MODIFY)
+│       │   └── registry/       # YOUR meter components
+│       ├── src/lib/            # Utilities (cn, etc.)
+│       ├── src/styles/         # CSS variables
+│       ├── registry.json       # Component manifest (CRITICAL)
+│       └── components.json     # shadcn CLI config
+│
+├── tooling/typescript/         # Shared TypeScript configs
+├── turbo.json                  # Build orchestration
+├── pnpm-workspace.yaml         # Workspace definition
+└── lefthook.yml                # Git hooks
+```
+
+## Tech Stack
+
+- **Monorepo**: pnpm workspaces + Turborepo + Changesets
+- **Framework**: Next.js 16+ (App Router, React Server Components)
+- **Language**: TypeScript (strict mode)
+- **UI**: shadcn/ui (new-york style), Radix UI primitives
+- **Styling**: Tailwind CSS v4, CSS variables (OKLCH color space)
+- **Data Viz**: Tremor + Recharts
+- **Package Manager**: pnpm (NOT npm or yarn)
+- **Linting**: Biome (NOT ESLint/Prettier)
+- **Icons**: Lucide React
+
+## Critical Files (Modify with Care)
+
+| File | Location | Risk | Notes |
+|------|----------|------|-------|
+| `registry.json` | `packages/ui/` | 🔴 CRITICAL | Breaking changes break ALL installations |
+| `components.json` | `packages/ui/` | 🔴 CRITICAL | shadcn CLI config - invalid = CLI fails |
+| `turbo.json` | Root | 🔴 CRITICAL | Build pipeline |
+| `globals.css` | `packages/ui/src/styles/` | 🟡 HIGH | CSS variables affect all components |
+| `ui/*` | `packages/ui/src/components/` | 🟡 HIGH | Base shadcn - prefer not editing |
+
+## Import Aliases
+
+Always use path aliases, never relative imports:
+
+```tsx
+// ✅ Correct
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+
+// ❌ Wrong - breaks when copied to user projects
+import { cn } from "../../lib/utils";
+```
+
+## Key Commands
+
+```bash
+# All packages
+pnpm dev                            # Start dev servers
+pnpm build                          # Build all (cached)
+pnpm lint                           # Lint all
+pnpm typecheck                      # Type check all
+
+# Package-specific
+pnpm dev --filter=@usage-ui/www     # Dev docs only
+pnpm build --filter=@usage-ui/ui    # Build UI only
+
+# Add dependencies
+pnpm add <pkg> --filter=@usage-ui/ui
+```
+
+## Registry Distribution
+
+Components are distributed via shadcn CLI, NOT npm:
+
+```bash
+# Users install like this:
+npx shadcn add https://usage-ui.vercel.app/r/usage-meter.json
+```
+
+Components are **copied** into user projects at `components/ui/` - they own the code.
+
+## Where to Add Components
+
+| Type | Location |
+|------|----------|
+| Your meter components | `packages/ui/src/components/registry/` |
+| Base shadcn (don't modify) | `packages/ui/src/components/ui/` |
+| Site-specific (docs) | `apps/www/src/components/` |
+
+## Do NOT
+
+- ❌ Use `npm` commands (use `pnpm`)
+- ❌ Modify existing component APIs without updating registry.json
+- ❌ Use hardcoded colors (use CSS variables)
+- ❌ Create components without TypeScript types
+- ❌ Use default exports for components
+- ❌ Skip the `"use client"` directive for client components
+- ❌ Use relative imports
+- ❌ Edit `apps/www/public/r/` (generated files)
+- ❌ Modify `packages/ui/src/components/ui/` (base shadcn)

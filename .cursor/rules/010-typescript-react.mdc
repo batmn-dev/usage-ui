@@ -1,0 +1,129 @@
+---
+description: "TypeScript and React conventions for Usage UI components"
+globs: ["**/*.ts", "**/*.tsx"]
+---
+
+# TypeScript & React Conventions
+
+## TypeScript Requirements
+
+- Use `interface` for component props (not `type`)
+- Export types alongside components
+- No `any` types - use proper typing or `unknown`
+- Use `React.ComponentProps<"element">` for extending HTML elements
+
+```tsx
+// ✅ Good - interface with proper naming
+interface UsageMeterProps extends React.ComponentProps<"div"> {
+  value: number;
+  max?: number;
+  variant?: "default" | "success" | "warning" | "danger";
+}
+
+// ❌ Bad - type alias, missing extends
+type Props = {
+  value: number;
+}
+```
+
+## Component Structure
+
+### Named Exports Only
+
+```tsx
+// ✅ Good
+export { UsageMeter };
+export type { UsageMeterProps };
+
+// ❌ Bad - default exports
+export default UsageMeter;
+```
+
+### Client Directive
+
+Add `"use client"` when component uses:
+- `useState`, `useEffect`, `useRef`, or other hooks
+- Event handlers (`onClick`, `onChange`, etc.)
+- Radix UI primitives (they use state internally)
+- Browser APIs
+
+```tsx
+// ✅ Required for client interactivity
+"use client";
+
+import { useState } from "react";
+```
+
+### Props Interface Naming
+
+Use `ComponentNameProps` pattern:
+
+```tsx
+interface ButtonProps { }      // ✅ Good
+interface IButtonProps { }     // ❌ Bad - no I prefix
+interface ButtonPropsType { }  // ❌ Bad - redundant suffix
+```
+
+## Import Order
+
+Biome handles import sorting, but prefer this logical order:
+
+```tsx
+// 1. React and external libraries
+import * as React from "react";
+import { cva, type VariantProps } from "class-variance-authority";
+
+// 2. Internal aliases
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+
+// 3. Relative imports (only for co-located files)
+import { Logo } from "./logo";
+```
+
+## React Patterns
+
+### Prefer Function Components
+
+```tsx
+// ✅ Good - function declaration
+function UsageMeter({ value, ...props }: UsageMeterProps) {
+  return <div {...props}>{value}</div>;
+}
+
+// ✅ Also acceptable - arrow function for simple components
+const UsageMeter = ({ value }: UsageMeterProps) => <div>{value}</div>;
+```
+
+### Spread Props Last
+
+```tsx
+// ✅ Good - spread props to allow overrides
+function Card({ className, ...props }: CardProps) {
+  return <div className={cn("base-styles", className)} {...props} />;
+}
+```
+
+### Conditional Rendering
+
+```tsx
+// ✅ Good - clear conditionals
+{showLabel && <span>{label}</span>}
+{variant === "danger" && <AlertIcon />}
+
+// ❌ Bad - ternary for simple show/hide
+{showLabel ? <span>{label}</span> : null}
+```
+
+## Type Inference
+
+Let TypeScript infer when obvious:
+
+```tsx
+// ✅ Good - inference is clear
+const [count, setCount] = useState(0);
+const items = data.map((item) => item.id);
+
+// ✅ Good - explicit when inference isn't clear
+const [user, setUser] = useState<User | null>(null);
+```

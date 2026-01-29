@@ -1,0 +1,35 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "brand-header",
+  "title": "Brand Header",
+  "description": "A styled, simple, reusable header",
+  "registryDependencies": [
+    "button",
+    "input",
+    "avatar",
+    "sidebar",
+    "https://registry-starter.vercel.app/r/sonner.json",
+    "https://registry-starter.vercel.app/r/logo.json",
+    "https://registry-starter.vercel.app/r/theme.json"
+  ],
+  "files": [
+    {
+      "path": "src/components/brand-header.tsx",
+      "content": "\"use client\";\n\nimport { HelpCircle, Menu, Search, X } from \"lucide-react\";\nimport Link from \"next/link\";\nimport { useState } from \"react\";\n\nimport { Avatar, AvatarFallback } from \"@/components/ui/avatar\";\nimport { Button } from \"@/components/ui/button\";\nimport { Input } from \"@/components/ui/input\";\nimport { useSidebar } from \"@/components/ui/sidebar\";\n\nimport { Logo } from \"./logo\";\n\nexport function BrandHeader() {\n  const [isSearchOpen, setIsSearchOpen] = useState(false);\n  const { state, toggleSidebar } = useSidebar();\n  const isCollapsed = state === \"collapsed\";\n\n  return (\n    <header className=\"fixed z-50 w-full border-border border-b bg-background\">\n      <div className=\"flex h-16 items-center justify-between px-2\">\n        <div className=\"flex items-center space-x-4\">\n          <Button\n            variant=\"ghost\"\n            size=\"icon\"\n            className=\"hidden size-8 md:flex\"\n            onClick={toggleSidebar}\n          >\n            {isCollapsed ? (\n              <Menu className=\"size-4\" />\n            ) : (\n              <X className=\"size-4\" />\n            )}\n          </Button>\n\n          <Button\n            variant=\"ghost\"\n            size=\"icon\"\n            className=\"size-8 md:hidden\"\n            onClick={toggleSidebar}\n          >\n            <Menu className=\"size-4\" />\n          </Button>\n\n          <Link href=\"/\" className=\"flex items-center\">\n            <Logo />\n          </Link>\n        </div>\n\n        <div className=\"hidden items-center space-x-1 md:flex\">\n          {isSearchOpen ? (\n            <div className=\"relative\">\n              <Input\n                type=\"text\"\n                placeholder=\"Search\"\n                className=\"h-9 w-64 pl-9\"\n                autoFocus\n                onBlur={() => setIsSearchOpen(false)}\n              />\n              <Search className=\"absolute top-2.5 left-3 size-4 text-foreground\" />\n            </div>\n          ) : (\n            <Button\n              variant=\"ghost\"\n              size=\"sm\"\n              className=\"text-foreground\"\n              onClick={() => setIsSearchOpen(true)}\n            >\n              <Search className=\"mr-2 size-4\" />\n              Search\n            </Button>\n          )}\n\n          <Button variant=\"ghost\" size=\"sm\" className=\"text-foreground\">\n            <HelpCircle className=\"mr-2 size-4\" />\n            Support\n          </Button>\n\n          <Button variant=\"ghost\" size=\"sm\" className=\"text-foreground\">\n            Upgrade Trial\n          </Button>\n\n          <Avatar className=\"size-8\">\n            <AvatarFallback className=\"bg-primary text-primary-foreground\">\n              <span className=\"text-xs\">ME</span>\n            </AvatarFallback>\n          </Avatar>\n        </div>\n\n        <div className=\"flex gap-2 md:hidden\">\n          <Button variant=\"ghost\" size=\"sm\" className=\"text-foreground\">\n            <Search className=\"h-5 w-5\" />\n          </Button>\n          <Avatar className=\"size-8\">\n            <AvatarFallback className=\"bg-primary text-primary-foreground\">\n              <span className=\"text-xs\">ME</span>\n            </AvatarFallback>\n          </Avatar>\n        </div>\n      </div>\n    </header>\n  );\n}\n",
+      "type": "registry:component"
+    },
+    {
+      "path": "src/layouts/shell-layout.tsx",
+      "content": "import { Geist, Geist_Mono, Montserrat } from \"next/font/google\";\nimport React, { type ReactNode } from \"react\";\n\nimport { BrandHeader } from \"@/components/brand-header\";\nimport { BrandSidebar } from \"@/components/brand-sidebar\";\nimport { SidebarProvider } from \"@/components/ui/sidebar\";\nimport { Toaster } from \"@/components/ui/sonner\";\nimport { cn } from \"@/lib/utils\";\n\nimport \"@/app/globals.css\";\n\nconst GeistSans = Geist({\n  subsets: [\"latin\"],\n  variable: \"--font-sans\",\n});\n\nconst GeistMono = Geist_Mono({\n  subsets: [\"latin\"],\n  variable: \"--font-mono\",\n});\n\nconst MontserratSerif = Montserrat({\n  subsets: [\"latin\"],\n  variable: \"--font-serif\",\n});\n\nexport default function ShellLayout({\n  children,\n}: Readonly<{\n  children: ReactNode;\n}>) {\n  return (\n    <html\n      lang=\"en\"\n      className={cn(\n        GeistSans.variable,\n        GeistMono.variable,\n        MontserratSerif.variable,\n        \"bg-background text-foreground\",\n      )}\n    >\n      <body>\n        <SidebarProvider>\n          <BrandHeader />\n          <BrandSidebar />\n          <main className=\"mt-16 flex w-full justify-center\">\n            <div className=\"container\">{children}</div>\n          </main>\n          <Toaster />\n        </SidebarProvider>\n      </body>\n    </html>\n  );\n}\n",
+      "type": "registry:file",
+      "target": "app/layout.tsx"
+    },
+    {
+      "path": "src/app/demo/[name]/blocks/blank-page.tsx",
+      "content": "export default function BlankPage() {\n  return (\n    <div className=\"flex flex-col items-center justify-center gap-4 rounded-md py-96\">\n      <div className=\"text-muted-foreground\">\n        Start prompting to use your component!\n      </div>\n    </div>\n  );\n}\n",
+      "type": "registry:page",
+      "target": "app/page.tsx"
+    }
+  ],
+  "type": "registry:component"
+}

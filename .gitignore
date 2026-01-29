@@ -3,7 +3,7 @@
 .vscode
 
 # dependencies
-/node_modules
+node_modules/
 /.pnp
 .pnp.js
 .yarn/install-state.gz
@@ -37,3 +37,15 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Agent skill symlinks (canonical source is .agents/)
+.claude/
+.codex/
+.windsurf/
+.cursor/skills/
+
+# Monorepo build artifacts
+apps/www/.next/
+apps/www/.turbo/
+packages/ui/dist/
+.turbo/
